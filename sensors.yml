@@ -1,0 +1,41 @@
+---
+- hosts: pi
+  remote_user: root
+  sudo: yes
+  
+  tasks:
+  - name: install python-apt
+    raw: apt-get update && apt-get install python-apt -y -q
+
+  - name: ensure apache is at the latest version
+    apt: name=apache2 state=latest
+
+  - name: ensure mod-wsgi is installed
+    apt: name=libapache2-mod-wsgi state=latest
+
+  - name: install utilities like vim
+    apt: name=vim state=latest
+
+  - cron: name="Update index.html periodically" special_time=hourly job="sudo date > /var/www/index.html"
+
+  - name: alsa-utils
+    apt : name=alsa-utils state=latest
+
+  - name: line snd_bcm in modules
+    lineinfile: dest=/etc/modules line=snd_bcm2835
+
+  - name: mplayer
+    apt : name=mplayer state=latest
+
+  - name: set audio to analog
+    command: sudo amixer cset numid=3 1
+
+#  - name: mplayer error message fix
+#    lineinfile: dest=/etc/mplayer/mplayer.conf line=nolirc=yes
+
+  - name: festival
+    apt : name=festival state=latest
+
+ 
+
+
