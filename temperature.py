@@ -15,8 +15,7 @@ def read_temperature():
     temperature = temperature * 9.0/5.0 + 32
 
     if humidity is not None and temperature is not None:
-        print 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity)
         params = {'field1':temperature, 'field2':humidity, 'api_key':'HODM81D0JV0KYEIH'}
-        return temperature, humidity
+        return humidity, temperature
     else:
         print 'Failed to get reading. Try again!'
