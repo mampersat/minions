@@ -21,8 +21,12 @@ def write_to_thingspeak(t,h):
             print "request error"
 
 def write_to_adafruit(t,h):
-    aio = Client('3f755fc33a12977916bcbb1b518c8772ee16faaf')
-    aio.send('minion1', t)
+    try:
+        aio = Client('3f755fc33a12977916bcbb1b518c8772ee16faaf')
+        aio.send('minion1', t)
+    except:
+        print "request error"
+
     
 while True:
     humidity, temperature = read_temperature()
