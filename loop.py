@@ -2,10 +2,27 @@
 import sys
 import time
 import requests
+import json
 
 from Adafruit_IO import Client
-
 from temperature import read_temperature
+
+api = "http://192.168.1.114:8000/minions"
+my_id = 1
+
+def write_to_mysql(t,h):
+    data = {}
+    data['temp'] = t
+    data['id'] = my_id
+
+    json_data = json.dumps(data)
+
+    print json_data
+    try:
+        r=requests.post(api, data= json_data)
+        print 'status code = {}'.format(r.status_code)
+    except:
+        print 'request error', sys.exc_info()[0]
 
 def write_to_thingspeak(t,h):
     
@@ -34,7 +51,9 @@ while True:
     if humidity is not None and temperature is not None:
         print 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity)
 
-    write_to_thingspeak(temperature, humidity)
-    write_to_adafruit(temperature, humidity)
+    # write_to_thingspeak(temperature, humidity)
+    # write_to_adafruit(temperature, humidity)
+    write_to_mysql(temperature, humidity)
+
 
     time.sleep(10)
