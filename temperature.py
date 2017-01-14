@@ -5,6 +5,7 @@ read temperature from GPIO#4 attached to DHT11
 """
 import sys
 import Adafruit_DHT
+import json
 
 def read_temperature():
     sensor = 11
@@ -12,10 +13,21 @@ def read_temperature():
 
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
+    # Convert C->F
     temperature = temperature * 9.0/5.0 + 32
 
     if humidity is not None and temperature is not None:
-        params = {'field1':temperature, 'field2':humidity, 'api_key':'HODM81D0JV0KYEIH'}
         return humidity, temperature
     else:
         print 'Failed to get reading. Try again!'
+
+def read_temperature_json():
+    t,h = read_temperature()
+    data = {}
+    data['temp'] = t
+    data['humidity'] = h
+    data['id'] = my_id
+
+    json_data = json.dumps(data)
+
+    return json_data

@@ -7,6 +7,9 @@
   - name: install python-apt
     raw: apt-get update && apt-get install python-apt -y -q
 
+  - name: install ipythyon
+    apt: name=ipython state=latest
+
   - name: ensure apache is at the latest version
     apt: name=apache2 state=latest
 

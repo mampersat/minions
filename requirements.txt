@@ -1,1 +1,3 @@
 Adafruit_DHT
+pyowm
+json
