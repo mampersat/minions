@@ -3,7 +3,7 @@ import sys
 import time
 import requests
 
-from temperature import read_temperature
+from temperature import read_temperature_json
 
 api = "http://192.168.1.114:8000/minions"
 my_id = 1
@@ -18,6 +18,6 @@ def send_to_api(json):
         print 'request error', sys.exc_info()[0]
 
 while True:
-    json = read_temperature_json()
+    json = read_temperature_json(my_id)
     write_to_mysql(json)
     time.sleep(10)

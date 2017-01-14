@@ -21,12 +21,12 @@ def read_temperature():
     else:
         print 'Failed to get reading. Try again!'
 
-def read_temperature_json():
+def read_temperature_json(id):
     t,h = read_temperature()
     data = {}
     data['temp'] = t
     data['humidity'] = h
-    data['id'] = my_id
+    data['id'] = mid
 
     json_data = json.dumps(data)
 
