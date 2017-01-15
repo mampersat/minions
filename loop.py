@@ -8,7 +8,7 @@ from Adafruit_IO import Client
 from temperature import read_temperature
 
 api = "http://192.168.1.114:8000/minions"
-my_id = 1
+my_id = 2
 
 def write_to_mysql(t,h):
     data = {}
@@ -50,10 +50,8 @@ while True:
 
     if humidity is not None and temperature is not None:
         print 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity)
-
-    # write_to_thingspeak(temperature, humidity)
-    # write_to_adafruit(temperature, humidity)
-    write_to_mysql(temperature, humidity)
-
+        write_to_mysql(temperature, humidity)
+    else:
+        print "Failed to read"
 
     time.sleep(10)
