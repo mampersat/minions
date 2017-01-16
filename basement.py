@@ -18,6 +18,8 @@ def send_to_api(json_data):
         print 'request error', sys.exc_info()[0]
 
 while True:
-    json = read_temperature_json(my_id)
+    p = {'id':my_id}
+    read_temperature(p)
+    json = json.dumps(p)
     send_to_api(json)
     time.sleep(10)

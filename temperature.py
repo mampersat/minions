@@ -7,7 +7,7 @@ import sys
 import Adafruit_DHT
 import json
 
-def read_temperature():
+def read_temperature(p):
     sensor = 11
     pin = 4
 
@@ -21,13 +21,5 @@ def read_temperature():
     else:
         print 'Failed to get reading. Try again!'
 
-def read_temperature_json(id):
-    h,t = read_temperature()
-    data = {}
-    data['temp'] = t
-    data['humidity'] = h
-    data['id'] = id
-
-    json_data = json.dumps(data)
-
-    return json_data
+    p['temp'] = temperature
+    p['humidity'] = humidity

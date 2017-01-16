@@ -6,27 +6,24 @@ read temperature from GPIO#4 attached to DHT11
 import sys
 import Adafruit_DHT
 import json
+import RPi.GPIO as GPIO
+import time
+import os
 
-def read_lux():
-    pin = 4
+def read_lux(p):
+    pin = 18
+    GPIO.setmode(GPIO.BCM)
 
-    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+    reading = 0
+    GPIO.setup(RCpin, GPIO.OUT)
+    GPIO.output(RCpin, GPIO.LOW)
+    #Charge the capictor
+    time.sleep(0.1)
 
-    # Convert C->F
-    temperature = temperature * 9.0/5.0 + 32
+    GPIO.setup(RCpin, GPIO.IN)
+    # see how long it takes to discharge
+    while (GPIO.input(RCpin) == GPIO.LOW):
+            reading += 1
 
-    if humidity is not None and temperature is not None:
-        return humidity, temperature
-    else:
-        print 'Failed to get reading. Try again!'
-
-def read_temperature_json(id):
-    h,t = read_temperature()
-    data = {}
-    data['temp'] = t
-    data['humidity'] = h
-    data['id'] = id
-
-    json_data = json.dumps(data)
-
-    return json_data
+    p['lux'] = reading
+    
