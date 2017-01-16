@@ -8,7 +8,7 @@ class MinionResource(object):
     def on_post(self, req, resp):
         try:
             raw_json = req.stream.read()
-            print raw_json
+            print req.remote_addr, ":", raw_json
 
         except Exception as ex:
             raise falcon.HTTPError(falcon.HTTP_400,
