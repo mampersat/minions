@@ -7,8 +7,7 @@ import sys
 import Adafruit_DHT
 import json
 
-def read_temperature():
-    sensor = 11
+def read_lux():
     pin = 4
 
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
