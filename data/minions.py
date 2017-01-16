@@ -8,6 +8,8 @@ class MinionResource(object):
     def on_post(self, req, resp):
         try:
             raw_json = req.stream.read()
+            print raw_json
+
         except Exception as ex:
             raise falcon.HTTPError(falcon.HTTP_400,
                 'Error',
@@ -21,10 +23,11 @@ class MinionResource(object):
                 'Could not decode the request body. The '
                 'JSON was incorrect.')
         try:
-            t = result_json['temp']
             my_id = result_json['id']
-            print(t, my_id)
-            x.execute("INSERT report (t, id) VALUES (%s, %s)", (t, my_id))
+            t = result_json['temp']
+            lux = result_json.get('lux', 0)
+            humid = result_json.get('humid', None)
+            x.execute("INSERT report (id, t, lux) VALUES (%s, %s, %s)", (my_id, t, lux))
             conn.commit()
         except:
             resp.body = ("negative")
