@@ -11,7 +11,7 @@ import time
 import os
 
 def read_lux(p):
-    pin = 18
+    RCpin = 18
     GPIO.setmode(GPIO.BCM)
 
     reading = 0
