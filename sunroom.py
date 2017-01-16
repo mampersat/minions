@@ -8,7 +8,7 @@ from temperature import read_temperature_json
 api = "http://192.168.1.114:8000/minions"
 my_id = 1
 
-def send_to_api(json):
+def send_to_api(json_data):
 
     print json_data
     try:
@@ -19,5 +19,5 @@ def send_to_api(json):
 
 while True:
     json = read_temperature_json(my_id)
-    write_to_mysql(json)
+    send_to_api(json)
     time.sleep(10)
