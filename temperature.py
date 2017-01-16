@@ -16,10 +16,9 @@ def read_temperature(p):
     # Convert C->F
     temperature = temperature * 9.0/5.0 + 32
 
-    if humidity is not None and temperature is not None:
-        return humidity, temperature
-    else:
+    if humidity is None or temperature is None:
         print 'Failed to get reading. Try again!'
+        return
 
     p['temp'] = temperature
     p['humidity'] = humidity
