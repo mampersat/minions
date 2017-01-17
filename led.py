@@ -72,12 +72,12 @@ GPIO.setup(p, GPIO.OUT)
 msg = "SOS SOS SOS SOS SOS "
 msg = "314159265358979"
 msg = "144"
-msg = str(randint(0,255))
 
 while True:
    #Message about to transmit
    fade()
 
+   msg = str(randint(0,255))
    for l in msg:
        c = CODE[l.upper()]
        print c,
