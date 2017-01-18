@@ -29,7 +29,7 @@ CODE = {'A': '.-',     'B': '-...',   'C': '-.-.',
         }
 
 def dot():
-        print ".",
+        print "o",
         GPIO.output(p,GPIO.HIGH)
         time.sleep(ldot)
         GPIO.output(p,GPIO.LOW)
@@ -37,7 +37,7 @@ def dot():
         return
 
 def dash():
-        print "-",
+        print "_",
         GPIO.output(p,GPIO.HIGH)
         time.sleep(ldash)
         GPIO.output(p,GPIO.LOW)
@@ -65,28 +65,22 @@ def fade():
         time.sleep(0.0001*i)
         GPIO.output(p,GPIO.LOW)
         time.sleep(0.01)
+
+def flash_msg(msg):
     
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(p, GPIO.OUT)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(p, GPIO.OUT)
 
-msg = "SOS SOS SOS SOS SOS "
-msg = "314159265358979"
-msg = "144"
+    while True:
+       #Message about to transmit
+       fade()
 
-while True:
-   #Message about to transmit
-   fade()
+       for l in msg:
+           c = CODE[l.upper()]
+           for e in c: 
+               if e==".": dot()
+               if e=="-": dash()
+               if e==" ": space()
+           space()
 
-   msg = str(randint(0,255))
-   for l in msg:
-       c = CODE[l.upper()]
-       print c,
-       for e in c: 
-          if e==".": dot()
-          if e=="-": dash()
-          if e==" ": space()
-       space()
-
-   print msg
-
-GPIO.cleanup()
+    GPIO.cleanup()
