@@ -7,8 +7,21 @@ import json
 from temperature import read_temperature
 from lux import read_lux
 
-api = "http://192.168.1.114:8000/minions"
 my_id = 1
+api = "http://192.168.1.114:8000/minions"
+
+def send_to_ha(json_data):
+    t = json_data['temp']
+    h = json_data['humidity']
+    d = {
+        "state": t,
+        "attributes": {
+            "unit_of_measurement": "°C", "friendly_name": "Minion 1 Temp"
+            }
+        }
+
+    r = requests.post("http://localhost:8123/api/states/sensor.minion1_temp",
+        data = d)
 
 def send_to_api(json_data):
 
