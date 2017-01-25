@@ -20,7 +20,7 @@ def send_to_ha(json_data):
             }
         }
 
-    r = requests.post("http://localhost:8123/api/states/sensor.minion1_temp",
+    r = requests.post("http://192.168.1.114:8123/api/states/sensor.minion1_temp",
         data = d)
 
 def send_to_api(json_data):
