@@ -16,12 +16,13 @@ def send_to_ha(json_data):
     d = {
         "state": t,
         "attributes": {
-            "unit_of_measurement": "°C", "friendly_name": "Minion 1 Temp"
+            "unit_of_measurement": "F", "friendly_name": "Minion 1 Temp"
             }
         }
-
+    j = json.dumps(d)
     r = requests.post("http://192.168.1.114:8123/api/states/sensor.minion1_temp",
-        data = d)
+        data = j)
+    print r.text
 
 def send_to_api(json_data):
 
@@ -38,4 +39,5 @@ while True:
     read_lux(p)
     j = json.dumps(p)
     send_to_api(j)
+    send_to_ha(p)
     time.sleep(10)
