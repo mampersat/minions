@@ -22,4 +22,9 @@ True
 ('192.168.1.137', '255.255.255.0', '192.168.1.1', '192.168.1.1')
 ```
 
+Enable WebREPL from picocom USB connection
+```
+>>>import webrepl_setup
+```
+
 Send some files (like main.py) to the device using http://micropython.org/webrepl/ and the IP address
