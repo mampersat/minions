@@ -1,0 +1,21 @@
+device_tracker.00bb3a35dd12	not_home	friendly_name: 00bb3a35dd12
+device_tracker.14918247e7d1	not_home	friendly_name: 14918247e7d1
+device_tracker.98b6e9455943	not_home	friendly_name: 98b6e9455943
+device_tracker.android2d7e4b68bbc7eec2	not_home	friendly_name: android-2d7e4b68bbc7eec2
+device_tracker.android32257d883f9a88f3	home	friendly_name: Matt
+device_tracker.android7d35e1d0305bf5b5	not_home	friendly_name: android-7d35e1d0305bf5b5
+device_tracker.android82745c032c4b6c1d	not_home	friendly_name: android-82745c032c4b6c1d
+device_tracker.annasmbp	not_home	friendly_name: Annas-MBP
+device_tracker.chromecast	not_home	friendly_name: Chromecast
+device_tracker.chromecast_2	not_home	friendly_name: Chromecast
+device_tracker.elizabehsiphone	not_home	friendly_name: ElizabehsiPhone
+device_tracker.esp_01fedb	home	friendly_name: ESP 01FEDB
+device_tracker.fosscam	not_home	friendly_name: FossCam
+device_tracker.htamnbt7wtf2	not_home	friendly_name: HTAMN-BT7WTF2
+device_tracker.katiesipad	not_home	friendly_name: Katies-iPad
+device_tracker.minion1	not_home	friendly_name: minion-1
+device_tracker.msheppardmbpr	not_home	friendly_name: msheppard-mbpr
+device_tracker.qca4002	not_home	friendly_name: QCA4002
+device_tracker.suzysipad	not_home	friendly_name: Suzys-iPad
+device_tracker.thamy	not_home	friendly_name: Thamy
+entity_id: device_tracker.android82745c032c4b6c1d,device_tracker.98b6e9455943,device_tracker.fosscam,device_tracker.qca4002,device_tracker.chromecast_2,device_tracker.chromecast,device_tracker.thamy,device_tracker.msheppardmbpr,device_tracker.14918247e7d1,device_tracker.android7d35e1d0305bf5b5,device_tracker.android2d7e4b68bbc7eec2,device_tracker.suzysipad,device_tracker.katiesipad,device_tracker.minion1,device_tracker.annasmbp,device_tracker.esp_01fedb,device_tracker.android32257d883f9a88f3,device_tracker.htamnbt7wtf2,device_tracker.elizabehsiphone,device_tracker.00bb3a35dd12

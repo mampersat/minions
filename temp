@@ -1,0 +1,87 @@
+Entity	State	Attributes
+camera.raspberry_pi_camera	idle	friendly_name: Raspberry Pi Camera
+entity_picture: /api/camera_proxy/camera.raspberry_pi_camera?token=88a00753fe9ea390b6cdbcfbe844a19068e70d8145978ab89ac6bf40336d03f0
+access_token: 88a00753fe9ea390b6cdbcfbe844a19068e70d8145978ab89ac6bf40336d03f0
+device_tracker.00bb3a35dd12	not_home	friendly_name: 00bb3a35dd12
+source_type: router
+device_tracker.14918247e7d1	not_home	friendly_name: 14918247e7d1
+source_type: null
+device_tracker.98b6e9455943	not_home	friendly_name: 98b6e9455943
+source_type: router
+device_tracker.android2d7e4b68bbc7eec2	not_home	friendly_name: android-2d7e4b68bbc7eec2
+source_type: router
+device_tracker.android32257d883f9a88f3	home	friendly_name: Matt
+gps_accuracy: 0
+latitude: 43.1756
+longitude: -71.4104
+source_type: router
+device_tracker.android7d35e1d0305bf5b5	not_home	friendly_name: android-7d35e1d0305bf5b5
+source_type: router
+device_tracker.android82745c032c4b6c1d	not_home	friendly_name: android-82745c032c4b6c1d
+source_type: router
+device_tracker.annasmbp	not_home	friendly_name: Annas-MBP
+source_type: null
+device_tracker.chromecast	not_home	friendly_name: Chromecast
+source_type: null
+device_tracker.chromecast_2	not_home	friendly_name: Chromecast
+source_type: null
+device_tracker.elizabehsiphone	not_home	friendly_name: ElizabehsiPhone
+source_type: router
+device_tracker.esp_01fedb	home	friendly_name: ESP 01FEDB
+gps_accuracy: 0
+latitude: 43.1756
+longitude: -71.4104
+source_type: router
+device_tracker.fosscam	not_home	friendly_name: FossCam
+source_type: router
+device_tracker.htamnbt7wtf2	not_home	friendly_name: HTAMN-BT7WTF2
+source_type: router
+device_tracker.katiesipad	not_home	friendly_name: Katies-iPad
+source_type: null
+device_tracker.minion1	not_home	friendly_name: minion-1
+source_type: router
+device_tracker.msheppardmbpr	not_home	friendly_name: msheppard-mbpr
+source_type: router
+device_tracker.qca4002	not_home	friendly_name: QCA4002
+source_type: null
+device_tracker.suzysipad	not_home	friendly_name: Suzys-iPad
+source_type: router
+device_tracker.thamy	not_home	friendly_name: Thamy
+source_type: null
+group.all_devices	home	friendly_name: all devices
+order: 1
+hidden: true
+entity_id: device_tracker.android82745c032c4b6c1d,device_tracker.98b6e9455943,device_tracker.fosscam,device_tracker.qca4002,device_tracker.chromecast_2,device_tracker.chromecast,device_tracker.thamy,device_tracker.msheppardmbpr,device_tracker.14918247e7d1,device_tracker.android7d35e1d0305bf5b5,device_tracker.android2d7e4b68bbc7eec2,device_tracker.suzysipad,device_tracker.katiesipad,device_tracker.minion1,device_tracker.annasmbp,device_tracker.esp_01fedb,device_tracker.android32257d883f9a88f3,device_tracker.htamnbt7wtf2,device_tracker.elizabehsiphone,device_tracker.00bb3a35dd12
+auto: true
+group.climate	unknown	view: true
+order: 1
+hidden: true
+entity_id: sensor.minion1_temp,sensor.minion1_lux,sensor.shop_temp,sensor.minion3_temp,sensor.minion3_lux
+friendly_name: climate
+sensor.exchange_rate_1_btc	1085.04	friendly_name: Exchange rate (1 BTC)
+unit_of_measurement: USD
+attribution: Data provided by blockchain.info
+icon: mdi:currency-btc
+sensor.lux1	906	friendly_name: esp1 lux
+unit_of_measurement: L
+sensor.minion1_lux	790	friendly_name: Sunroom Lux
+unit_of_measurement: L
+sensor.minion1_temp	39.2	friendly_name: Sunroom Temp
+unit_of_measurement: F
+sensor.minion3_lux	908	friendly_name: esp1 lux
+unit_of_measurement: L
+sensor.minion3_temp	72	friendly_name: esp1 temp
+unit_of_measurement: F
+sensor.shop_temp	62.060001373291016	friendly_name: Shop Temp
+unit_of_measurement: F
+sensor.temperature1	70	friendly_name: esp1 temp
+unit_of_measurement: F
+sensor.yr_symbol	2	friendly_name: yr Symbol
+entity_picture: //api.met.no/weatherapi/weathericon/1.1/?symbol=2;content_type=image/png
+attribution: Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK.
+sun.sun	above_horizon	friendly_name: Sun
+elevation: 52.22
+azimuth: 175.79
+next_rising: 2017-04-03T10:23:38+00:00
+next_setting: 2017-04-02T23:12:54+00:00
+zone.home	zoning	friendly_name: Home
