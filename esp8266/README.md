@@ -21,6 +21,13 @@ True
 >>> sta_if.ifconfig()
 ('192.168.1.137', '255.255.255.0', '192.168.1.1', '192.168.1.1')
 ```
+Probably disconnect the Access point
+```
+>>> a = network.WLAN(network.AP_IF)
+>>> a.active()
+True
+>>> a.active(False)
+```
 
 Enable WebREPL from picocom USB connection
 ```
