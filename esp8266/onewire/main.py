@@ -29,7 +29,7 @@ while True:
     for rom in roms:
 
         # construct sensor name containing onewire device address
-
+        s = 'sensor.ow' + ''.join('{:02x}'.format(x) for x in rom)
 
         c = ds.read_temp(rom)
         f = c * (9.0/5.0) +32
