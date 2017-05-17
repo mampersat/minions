@@ -4,7 +4,7 @@ import homeassistant
 
 print("minion v0.1.2")
 
-sensor_name = 'sensor.minion4'
+sensor_name = 'sensor.minion5'
 hass = homeassistant.HomeAssistant('http://jarvis:8123', 'suzymatt')
 
 adc = machine.ADC(0)
@@ -13,9 +13,9 @@ while True:
     l = adc.read()
     print("lux",l)
     try:
-        new_state = hass.set_state(sensor_name+'_lux', str(l),
+        new_state = hass.set_state('sensor.sunroom_lux', str(l),
             {'unit_of_measurement': 'L',
-             'friendly_name': sensor_name+'_lux'})
+             'friendly_name': 'sensor.sunroom_lux'})
     except Exception as inst:
         print('cant send to homeassistant')
         print(inst)
@@ -27,9 +27,9 @@ while True:
     s = str(f).split('.')[0]
     print("temp",s)
     try:
-        new_state = hass.set_state(sensor_name+'_temp', s,
+        new_state = hass.set_state('sensor.sunroom_temp', s,
             {'unit_of_measurement': 'F',
-             'friendly_name':sensor_name+'_temp'})
+             'friendly_name':'sensor.sunroom_temp'})
     except:
         print("cant send to homeassistant")
 
