@@ -38,7 +38,12 @@ ow = onewire.OneWire(Pin(12))
 ds = ds18x20.DS18X20(ow)
 roms = ds.scan()
 
+# Setup reed switch
+reed = machine.Pin(13, machine.Pin.IN, machine.Pin.PULL_UP)
+
 i = 0
+remove = 1.0
+
 while True:
 
     print(w.ifconfig()) # Inside loop as network takes a few cycles to connect
@@ -58,14 +63,14 @@ while True:
         c = ds.read_temp(rom)
         f = c * (9.0/5.0) +32
 
-        print(s,':',f)
+        #debug
+        #print(s,':',f)
 
         # write to homeassistant
         if (i%100) == 0:
             try:
-                new_state = hass.set_state(s, str(f),
-                    {'unit_of_measurement': 'F'})
-                     # 'friendly_name': s})
+                # new_state = hass.set_state(s, str(f),
+                #     {'unit_of_measurement': 'F'})
                 print("# Logged")
 
                 outside = hass.get_state("sensor.outside_north")['state']
@@ -82,7 +87,11 @@ while True:
     # graphing
     g.append(f)
     if len(g) > 128:
-        g.pop(0)
+        g.pop(int(remove)-1)
+        remove = remove * 2
+        print(remove + " removed")
+        if remove >128:
+            remove = 1
 
     x = 0
     for y in g:
@@ -91,6 +100,15 @@ while True:
         if ((x+i)%10) ==0:
             oled.pixel(x,calc_y(70),1)
             oled.pixel(x,63,1)
+
+    # check reed switch
+    reed_s = "unknown"
+    if reed.value():
+        reed_s = "closed"
+    else:
+        reed_s = "open"
+
+    oled.text(reed_s, 21, 18)
 
     oled.show()
     i += 1
