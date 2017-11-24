@@ -87,11 +87,11 @@ while True:
     # graphing
     g.append(f)
     if len(g) > 128:
-        g.pop(int(remove)-1)
+        g.pop(129-int(remove))
         remove = remove * 2
-        print(remove + " removed")
+        print(remove , "removed")
         if remove >128:
-            remove = 1
+            remove = 1.0
 
     x = 0
     for y in g:
