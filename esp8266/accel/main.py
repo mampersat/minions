@@ -12,7 +12,8 @@ import morsecode
 
 print("Running")
 
-SENSITIVITY = 20 #5
+# Fucked around with a 20 SENSITIVITY prev
+SENSITIVITY = 5
 LOOP_SLEEP = 0.1
 
 # connect to the world
@@ -41,9 +42,9 @@ def listen_for_a_sec():
         r = i2c.readfrom_mem(29, 0x01, 6)
 
         # Calculate diff from last readings
-        xd = x - r[0]
-        yd = y - r[2]
-        zd = z - r[4]
+        xd = abs(abs(x - 128) - abs(r[0] - 128))
+        yd = abs(abs(y - 128) - abs(r[2] - 128))
+        zd = abs(abs(z - 128) - abs(r[4] - 128))
 
         # Remember readings
         x = r[0]
@@ -51,15 +52,13 @@ def listen_for_a_sec():
         z = r[4]
 
         # might need some better math her to calc 255->0 correctly
-        total = abs(xd) + abs(yd) + abs(zd)
+        total = xd + yd + zd
+
         print(total)
 
         # are we vibrating?
         if (total > SENSITIVITY) and (t > 0):
-            led.low()
             ret = True
-        else:
-            led.high()
 
         time.sleep(LOOP_SLEEP)
 
@@ -70,10 +69,12 @@ def listen_for_a_sec():
 while True:
     print("while true loop")
     if listen_for_a_sec():
+        led.low()
         if not recording:
             start = time.time()
             recodring = True
     else:
+        led.high()
         if recording:
             recording = False
             timespan = time.time() - start
