@@ -5,10 +5,13 @@ Measure accelerometer movement and log time the furnace is on
 
 from machine import I2C, Pin
 import time
+import ubinascii
+import webrepl
+
+from umqtt.simple import MQTTClient
 
 import homeassistant
 import morsecode
-
 
 print("Running")
 
@@ -16,8 +19,13 @@ print("Running")
 SENSITIVITY = 5
 LOOP_SLEEP = 0.1
 
-# connect to the world
-hass = homeassistant.HomeAssistant('http://jarvis:8123', 'suzymatt')
+# MQTT settings
+topic = "home"
+broker = "jarvis"
+client_id = "esp8266_2561200"
+client = MQTTClient(client_id, broker)
+client.connect()
+mqtt_s = '{}/{}'.format(topic, client_id)
 
 # create i2c object to talk to accelerometer
 i2c = I2C(freq=400000, scl=Pin(5), sda=Pin(4))
@@ -54,28 +62,28 @@ def listen_for_a_sec():
         # might need some better math her to calc 255->0 correctly
         total = xd + yd + zd
 
-        print(total)
-
         # are we vibrating?
         if (total > SENSITIVITY) and (t > 0):
             ret = True
 
         time.sleep(LOOP_SLEEP)
 
-    print("Listen resutl = ", ret)
     return ret
 
 
 while True:
-    print("while true loop")
     if listen_for_a_sec():
-        led.low()
+        led.low()  # on
         if not recording:
+            print("start")
             start = time.time()
-            recodring = True
+            recording = True
     else:
-        led.high()
+        led.high()  # off
         if recording:
-            recording = False
+            print("end")
             timespan = time.time() - start
             print(timespan)
+            data = str(timespan)
+            client.publish(mqtt_s, bytes(str(data), 'utf-8'))
+        recording = False
