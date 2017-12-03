@@ -3,7 +3,7 @@
 Measure accelerometer movement and log time the furnace is on
 """
 
-from machine import I2C, Pin
+import machine
 import time
 import ubinascii
 import webrepl
@@ -13,22 +13,38 @@ from umqtt.simple import MQTTClient
 import homeassistant
 import morsecode
 
-print("Running")
+print("Running v0.2")
 
 # Fucked around with a 20 SENSITIVITY prev
 SENSITIVITY = 5
 LOOP_SLEEP = 0.1
 
 # MQTT settings
-topic = "home"
-broker = "jarvis"
-client_id = "esp8266_2561200"
+topic = 'home'
+discovery_prefix = 'homeassistant'
+heartbeat_component = 'binary_sensor'
+time_component = 'sensor'
+node_id = 'furnace'
+heartbeat_object_id = 'heartbeat'
+time_object_id = 'time'
+broker = 'jarvis'
+client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 client = MQTTClient(client_id, broker)
-client.connect()
-mqtt_s = '{}/{}'.format(topic, client_id)
+
+# building in fault tolerance - it's OK to keep running w/o a connection
+# client.connect()
+
+heartbeat = 1
+
+# Register with HomeAssistant
+#client.publish("homeassistant/sensor/sensorFurnaceHB/config",
+#               '{"device_class":"sensor","name": "Heartbeat", "state_topic":"/homeassistant/sensor/sensorFurnaceHB/state" }')
+
+#client.publish("homeassistant/sensor/sensorFurnaceT/config",
+#               '{"device_class":"sensor","name": "Vibration", "state_topic":"/homeassistant/sensor/sensorFurnaceT/state" }')
 
 # create i2c object to talk to accelerometer
-i2c = I2C(freq=400000, scl=Pin(5), sda=Pin(4))
+i2c = machine.I2C(freq=400000, scl=machine.Pin(5), sda=machine.Pin(4))
 
 # activate accelerometer
 i2c.writeto_mem(29, 0x2a, b'\x01')
@@ -37,7 +53,7 @@ i2c.writeto_mem(29, 0x2a, b'\x01')
 recording = False
 start = time.time()
 
-led = Pin(2, Pin.OUT)
+led = machine.Pin(2, machine.Pin.OUT)
 
 
 def listen_for_a_sec():
@@ -47,6 +63,7 @@ def listen_for_a_sec():
     x = y = z = 0
     for t in range(0, 10):
 
+        # read registers from accelerometer
         r = i2c.readfrom_mem(29, 0x01, 6)
 
         # Calculate diff from last readings
@@ -70,20 +87,44 @@ def listen_for_a_sec():
 
     return ret
 
+def frangable_publish(topic, payload):
+    """If power goes out - we may try to log before homeassistant is back
+    so if we fail - sleep a bit and try to reconnect the mqtt client
+    drop current message on the floor
+    """
+    try:
+        client.publish(topic, payload)
+    except:
+        print("failed to log, sleeping 10")
+        time.sleep(10)
+        try:
+            client.connect()
+        except:
+            print("failed to connect")
+
 
 while True:
+
+    # send heartbeat
+
+    frangable_publish("homeassistant/sensor/sensorFurnaceHB/state", str(heartbeat))
+    heartbeat = - heartbeat
+
     if listen_for_a_sec():
         led.low()  # on
+        frangable_publish("homeassistant/sensor/sensorFurnaceBurn/state", "1")
         if not recording:
             print("start")
             start = time.time()
             recording = True
     else:
         led.high()  # off
+        frangable_publish("homeassistant/sensor/sensorFurnaceBurn/state", "0")
         if recording:
             print("end")
             timespan = time.time() - start
             print(timespan)
             data = str(timespan)
-            client.publish(mqtt_s, bytes(str(data), 'utf-8'))
+            frangable_publish("homeassistant/sensor/sensorFurnaceT/state", bytes(str(data), 'utf-8'))
+
         recording = False
