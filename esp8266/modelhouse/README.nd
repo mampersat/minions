@@ -1,0 +1,7 @@
+# Model House code for ESP-8266
+
+ToDo:
+* Scan WiFi networks and blink location estimation on startup
+  * Home
+  * Work
+  * Phone Hotspot
