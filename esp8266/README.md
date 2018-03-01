@@ -10,7 +10,7 @@ sudo /home/matt/.local/bin/esptool.py --port /dev/ttyUSB0 erase_flash
 3. Download micropython image from http://micropython.org/download#esp8266
 4. Write the micropython flash image 
 ```
-sudo /home/matt/.local/bin/esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20170108-v1.8.7.bin
+sudo /home/matt/.local/bin/esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20171101-v1.9.3.bin
 ```
 
 5. Connect and confirm `sudo picocom /dev/ttyUSB0 -b115200`
