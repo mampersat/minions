@@ -21,22 +21,20 @@ Connect it to the WiFi
 sudo picocom /dev/ttyUSB1 -b115200
 ...
 Terminal ready
->>> import network
->>> sta_if = network.WLAN(network.STA_IF)
->>> sta_if.active(True)
-#6 ets_task(4020ed88, 28, 3fff9fa8, 10)
->>> sta_if.connect('ShArVa')
->>> sta_if.isconnected()
-True
->>> sta_if.ifconfig()
+import network
+sta_if = network.WLAN(network.STA_IF)
+sta_if.active(True)
+sta_if.connect('ShArVa')
+sta_if.isconnected()
+
+sta_if.ifconfig()
 ('192.168.1.137', '255.255.255.0', '192.168.1.1', '192.168.1.1')
 ```
 Probably disconnect the Access point
 ```
->>> a = network.WLAN(network.AP_IF)
->>> a.active()
-True
->>> a.active(False)
+a = network.WLAN(network.AP_IF)
+a.active()
+a.active(False)
 ```
 
 Enable WebREPL from picocom USB connection
