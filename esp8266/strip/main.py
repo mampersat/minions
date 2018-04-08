@@ -3,6 +3,7 @@
 Control led lights based on MQTT messages
 """
 import machine
+import math
 import neopixel
 import network
 import time
@@ -10,11 +11,12 @@ import uos
 
 from umqtt.simple import MQTTClient
 
+pin = 4
 topic = 'leds'
-broker = '192.168.1.117'  # 'jarvis'
+broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 53
-np = neopixel.NeoPixel(machine.Pin(2), lights)
+lights = 20
+np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
 def allOff():
@@ -45,6 +47,52 @@ def party():
 
     np.write()
 
+def night_rider_1():
+    """ Night rider red wave animation
+    based on mod and abs functions
+    """
+    tf = 14
+    for t in range(0, 10000):
+        for p in range(0, np.n):
+            pm = p % 8
+            v = (tf/2) - abs(pm - abs((t % tf)-(tf / 2)))
+            v = int(v)
+            if v == 7:
+                np[p] = (10, 0, 0)
+            elif v == 6:
+                np[p] = (1, 0, 0)
+            else:
+                np[p] = (0, 0, 0)
+
+        np.write()
+        time.sleep_ms(100)
+
+
+def night_rider_2():
+    """ Night rider red wave animation
+    based on sin function
+    """
+
+    periods = 16
+
+    for t in range(0, 10000):
+        for p in range(0, np.n):
+
+            f = t * 2
+
+            v1 = math.cos(f / periods + p/2) - 0.7
+            v1 = max(0, v1)
+
+            v2 = math.cos(-f / periods + p/2) - 0.7
+            v2 = max(0, v2)
+
+            r = int(v1 * 50) + int(v2 * 50)
+
+            np[p] = (r, 0, 0)
+
+        np.write()
+        time.sleep_ms(10)
+
 def gotMessage(topic, msg):
     print(topic)
     print(msg)
@@ -72,7 +120,8 @@ start main loop
 """
 
 allOff()
-startUpAllOn()
+# startUpAllOn()
+night_rider_2()
 
 client.set_callback(gotMessage)
 

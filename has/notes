@@ -1,0 +1,2 @@
+When the machine reboots, these things currently don't restart correctly
+sudo appdaemon -c /home/homeassistant/conf/

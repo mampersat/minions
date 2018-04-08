@@ -15,7 +15,7 @@ from umqtt.simple import MQTTClient
 import homeassistant
 import morsecode
 
-print("Running temp/main v0.4")
+print("Running temp/main v0.5")
 
 # MQTT settings
 topic = 'home'
@@ -41,6 +41,7 @@ def frangable_publish(topic, payload):
     """
     try:
         client.publish(topic, payload)
+        print("Wrote", payload)
     except:
         print("failed to log, sleeping 10")
         time.sleep(10)
