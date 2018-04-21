@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 10
+lights = 39
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -118,6 +118,7 @@ def bin_walk():
 def bin_walk_2():
     """ Display incrementing binary digit
     Only make neopixel changes that are necessary - faster
+    16 lights = 00:03:17
     """
     b = 0
     while True:
@@ -132,7 +133,9 @@ def bin_walk_2():
             b = 0
             time.sleep(1)
         else:
-            np[t] = (5, 5, 5)
+            # np[t] = (5, 5, 5)
+            np[t] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
+
 
         for i in range(0, t):
             np[i] = (0, 0, 0)
