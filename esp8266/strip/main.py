@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 20
+lights = 32
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -73,12 +73,12 @@ def night_rider_2():
     based on sin function
     """
 
-    periods = 16
+    periods = 8
 
-    for t in range(0, 10000):
+    for t in range(0, 1000000):
         for p in range(0, np.n):
 
-            f = t * 2
+            f = t * 1.5
 
             v1 = math.cos(f / periods + p/2) - 0.7
             v1 = max(0, v1)

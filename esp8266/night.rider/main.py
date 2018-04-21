@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 8
+lights = 128
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -73,17 +73,24 @@ def night_rider_2():
     based on sin function
     """
 
-    periods = 8
+    periods = 16
 
-    for t in range(0, 1000000):
+    # syncrhonize the two cos waves
+    # this math is based on measurements vs. understanding what's going on
+    np_div = np.n / 3.3
+
+    t = 0
+    while True:
+        t += 1
         for p in range(0, np.n):
 
-            f = t * 1.5
+            # this controls speed - higher is faster
+            f = t * 3.2
 
-            v1 = math.cos(f / periods + p/2) - 0.7
+            v1 = math.cos(f / periods + p/np_div) - 0.7
             v1 = max(0, v1)
 
-            v2 = math.cos(-f / periods + p/2) - 0.7
+            v2 = math.cos(-f / periods + p/np_div) - 0.7
             v2 = max(0, v2)
 
             r = int(v1 * 50) + int(v2 * 50)
@@ -91,7 +98,40 @@ def night_rider_2():
             np[p] = (r, 0, 0)
 
         np.write()
-        time.sleep_ms(10)
+        # time.sleep_ms(10)
+
+
+def bin_walk():
+    t = 0
+    while True:
+        t = t + 1
+        for p in range(0, np.n):
+            if (t & pow(2, p)):
+                np[p] = (5, 5, 5)
+            else:
+                np[p] = (0, 0, 0)
+        np.write()
+
+        time.sleep(0)
+
+def bin_walk_2():
+    """ Faster binary ticker
+    Logic = Find a light to turn on - turn off all before
+    """
+    b = 0
+    while True:
+        # find the first OFF bit
+        t = 0
+        while (b & pow(2, t)):
+            t += 1
+
+        np[t] = (5, 5, 5)
+        for i in range(0, t):
+            np[i] = (0, 0, 0)
+        np.write()
+
+        b += 1
+
 
 def gotMessage(topic, msg):
     print(topic)
@@ -121,7 +161,9 @@ start main loop
 
 allOff()
 # startUpAllOn()
-night_rider_2()
+# night_rider_2()
+# bin_walk()
+bin_walk_2()
 
 client.set_callback(gotMessage)
 
