@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 128
+lights = 10
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -72,7 +72,6 @@ def night_rider_2():
     """ Night rider red wave animation
     based on sin function
     """
-
     periods = 16
 
     # syncrhonize the two cos waves
@@ -102,6 +101,8 @@ def night_rider_2():
 
 
 def bin_walk():
+    """ Display incrementing binary digit
+    """
     t = 0
     while True:
         t = t + 1
@@ -115,17 +116,24 @@ def bin_walk():
         time.sleep(0)
 
 def bin_walk_2():
-    """ Faster binary ticker
-    Logic = Find a light to turn on - turn off all before
+    """ Display incrementing binary digit
+    Only make neopixel changes that are necessary - faster
     """
     b = 0
     while True:
         # find the first OFF bit
+        # probably a better way to do this with log() etc
         t = 0
         while (b & pow(2, t)):
             t += 1
 
-        np[t] = (5, 5, 5)
+        # is this the last bit on the strip
+        if (t == np.n):
+            b = 0
+            time.sleep(1)
+        else:
+            np[t] = (5, 5, 5)
+
         for i in range(0, t):
             np[i] = (0, 0, 0)
         np.write()
