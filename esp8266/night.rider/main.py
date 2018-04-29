@@ -119,6 +119,7 @@ def bin_walk_2():
     """ Display incrementing binary digit
     Only make neopixel changes that are necessary - faster
     16 lights = 00:03:17
+    39 lights ~ 100 years
     """
     b = 0
     while True:
@@ -133,15 +134,66 @@ def bin_walk_2():
             b = 0
             time.sleep(1)
         else:
-            # np[t] = (5, 5, 5)
-            np[t] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
-
+            np[t] = (5, 5, 5)
+            # np[t] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
 
         for i in range(0, t):
             np[i] = (0, 0, 0)
         np.write()
 
         b += 1
+
+        # time.sleep_ms(168750) # 8 bits = 6 hours
+        time.sleep_ms(14063)  # 8 bits = 30min
+
+
+def bin_walk_3():
+    """ Display time in 8 bits
+
+    """
+    b = 0
+    c = 0
+    color_array = [
+        (10, 10, 10),   # 0 white     8-9am
+        (255, 0, 0),    # 1 red       9-10am
+        (255, 255, 0),  # 2 yellow    10am-11am
+        (0, 0, 255),    # 3 blue      11am-12pm
+        (0, 255, 0),    # 4 green     12pm-1pm
+        (128, 0, 255),  # 5 purple    1pm-2pm
+        (255, 190, 0),  # 6 orange    2pm-3pm
+        (0, 255, 255),  # 7 lt. blue  3pm-4pm
+        (255, 0, 255),  # 8 violet    4pm-5pm
+    ]
+
+    while True:
+        # find the first OFF bit
+        # probably a better way to do this with log() etc
+        t = 0
+        while (b & pow(2, t)):
+            t += 1
+
+            # is this the 8th bit - i.e. an hour has passed
+            if (t == 8):
+                c += 1
+                c =c % 9
+
+        # is this the last bit on the strip
+        if (t == np.n):
+            b = 0
+            time.sleep(1)
+        else:
+            # np[t] = (5, 5, 5)
+            # np[t] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
+            np[t] = color_array[c]
+
+        for i in range(0, t):
+            np[i] = (0, 0, 0)
+        np.write()
+
+        b += 1
+
+        time.sleep_ms(14063)  # 8 bits = 30min
+        # time.sleep_ms(100)
 
 
 def gotMessage(topic, msg):
@@ -174,7 +226,7 @@ allOff()
 # startUpAllOn()
 # night_rider_2()
 # bin_walk()
-bin_walk_2()
+bin_walk_3()
 
 client.set_callback(gotMessage)
 
