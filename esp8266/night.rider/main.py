@@ -154,15 +154,15 @@ def bin_walk_3():
     b = 0
     c = 0
     color_array = [
-        (10, 10, 10),   # 0 white     8-9am
-        (255, 0, 0),    # 1 red       9-10am
-        (255, 255, 0),  # 2 yellow    10am-11am
-        (0, 0, 255),    # 3 blue      11am-12pm
-        (0, 255, 0),    # 4 green     12pm-1pm
-        (128, 0, 255),  # 5 purple    1pm-2pm
-        (255, 190, 0),  # 6 orange    2pm-3pm
-        (0, 255, 255),  # 7 lt. blue  3pm-4pm
-        (255, 0, 255),  # 8 violet    4pm-5pm
+        (13, 0, 0),   # 8-9am-Red
+        (13, 13, 13),   # 9-10am-White
+        (13, 13, 0),   # 10-11am-Yellow
+        (0, 13, 0),   # 11-12pm-Green
+        (13, 0, 0),   # 12-1pm-Red
+        (13, 13, 13),   # 1-2pm-White
+        (13, 13, 0),   # 2-3pm-Yellow
+        (0, 13, 0),   # 3-4pm-Green
+        (13, 0, 0),   # 5pm-6pm-Red
     ]
 
     while True:
@@ -192,8 +192,8 @@ def bin_walk_3():
 
         b += 1
 
-        time.sleep_ms(14063)  # 8 bits = 30min
-        # time.sleep_ms(100)
+        time.sleep_ms(14063)  # ~ 15s, 8 bits = 30min
+        #time.sleep_ms(100)
 
 
 def gotMessage(topic, msg):
