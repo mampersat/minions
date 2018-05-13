@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 39
+lights = 8
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -70,7 +70,7 @@ def night_rider_1():
         time.sleep_ms(100)
 
 
-def night_rider_2():
+def night_rider_2(loop=100, delay=50):
     """ Night rider red wave animation
     based on sin function
     """
@@ -81,7 +81,7 @@ def night_rider_2():
     np_div = np.n / 3.3
 
     t = 0
-    while True:
+    for i in range(0, loop):
         t += 1
         for p in range(0, np.n):
 
@@ -99,7 +99,7 @@ def night_rider_2():
             np[p] = (r, 0, 0)
 
         np.write()
-        # time.sleep_ms(10)
+        time.sleep_ms(delay)
 
 
 def bin_walk():
@@ -203,6 +203,9 @@ def hour_glass():
     """
 
     ntptime.settime()
+    # machine.RTC().datetime((2018, 5, 13, 0, 10, 59, 40, 0)) #  Test top of the hour
+
+    nr = False
 
     while True:
 
@@ -211,6 +214,14 @@ def hour_glass():
         s = t[6]
         c = m * 60 + s
         b = int(c / 14.0625)
+
+        # top of the hour - show night rider
+        if (m == 0):
+            if not nr:
+                night_rider_2()
+                nr = True
+        else:
+            nr = False
 
         for p in range(0, np.n):
             if (b & pow(2, p)):
@@ -250,7 +261,7 @@ start main loop
 
 allOff()
 # startUpAllOn()
-# night_rider_2()
+night_rider_2(20)
 # bin_walk()
 # bin_walk_3()
 hour_glass()
