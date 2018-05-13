@@ -1,14 +1,14 @@
 Got a new esp8266? Here's the drill
-1. install esptool.py 
+1. install esptool.py
 ```
 sudo pip install esptool
 ```
-2. Erase the flash 
+2. Erase the flash
 ```
 sudo /home/matt/.local/bin/esptool.py --port /dev/ttyUSB0 erase_flash
 ```
 3. Download micropython image from http://micropython.org/download#esp8266
-4. Write the micropython flash image 
+4. Write the micropython flash image
 ```
 sudo /home/matt/.local/bin/esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20171101-v1.9.3.bin
 ```
@@ -22,12 +22,12 @@ sudo picocom /dev/ttyUSB1 -b115200
 ...
 Terminal ready
 import network
-sta_if = network.WLAN(network.STA_IF)
-sta_if.active(True)
-sta_if.connect('ShArVa')
-sta_if.isconnected()
+w = network.WLAN(network.STA_IF)
+w.active(True)
+w.connect('ShArVa', 'pw-redacted')
+w.isconnected()
 
-sta_if.ifconfig()
+w.ifconfig()
 ('192.168.1.137', '255.255.255.0', '192.168.1.1', '192.168.1.1')
 ```
 Probably disconnect the Access point
