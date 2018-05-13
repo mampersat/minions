@@ -6,9 +6,9 @@ import machine
 import math
 import neopixel
 import network
+import ntptime
 import time
 import uos
-
 from umqtt.simple import MQTTClient
 
 pin = 4
@@ -38,6 +38,7 @@ def startUpAllOn():
         time.sleep_ms(10)
         np.write()
 
+
 def party():
     """ Show a lot of colors and animation
     """
@@ -46,6 +47,7 @@ def party():
         np[i] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
 
     np.write()
+
 
 def night_rider_1():
     """ Night rider red wave animation
@@ -175,7 +177,7 @@ def bin_walk_3():
             # is this the 8th bit - i.e. an hour has passed
             if (t == 8):
                 c += 1
-                c =c % 9
+                c = c % 9
 
         # is this the last bit on the strip
         if (t == np.n):
@@ -193,16 +195,23 @@ def bin_walk_3():
         b += 1
 
         time.sleep_ms(14063)  # ~ 15s8 bits = 30min
-        #time.sleep_ms(100)
+
 
 def hour_glass():
-    """ Display system clock minutes in binary
+    """ Display system clock binary
     first bit = 14.0625s
     """
-    m = machine.RTC().datetime()[5]  # current minute
-    b = int(m / 14.0625)
+
+    ntptime.settime()
 
     while True:
+
+        t = machine.RTC().datetime()
+        m = t[5]
+        s = t[6]
+        c = m * 60 + s
+        b = int(c / 14.0625)
+
         for p in range(0, np.n):
             if (b & pow(2, p)):
                 np[p] = (5, 5, 5)
@@ -210,8 +219,8 @@ def hour_glass():
                 np[p] = (0, 0, 0)
         np.write()
 
-        print("m= {}, b= {}".format(m,b))
-        time.sleep(500)
+        print("m= {}, s= {}, b= {}".format(m, s, b))
+        time.sleep_ms(500)
 
 def gotMessage(topic, msg):
     print(topic)
