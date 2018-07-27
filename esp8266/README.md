@@ -47,5 +47,5 @@ Send some files (like main.py) to the device using http://micropython.org/webrep
 Command line to send files using ampy
 
 ```
-ampy -p /dev/ttyUSB0 -b 115200 put temp/main.py
+ampy -p /dev/ttyUSB0 -b 115200 put main.py
 ```
