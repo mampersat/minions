@@ -15,11 +15,12 @@ from umqtt.simple import MQTTClient
 import homeassistant
 import morsecode
 
-print("Running temp/main v0.5")
+print("Running temp/main v0.6")
 
 # MQTT settings
 topic = 'home'
 broker = 'jarvis'
+broker = '192.168.1.132'
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
 client = MQTTClient(client_id, broker)
@@ -41,7 +42,7 @@ def frangable_publish(topic, payload):
     """
     try:
         client.publish(topic, payload)
-        print("Wrote", payload)
+        print("Wrote", payload, " to ", topic)
     except:
         print("failed to log, sleeping 10")
         time.sleep(10)
