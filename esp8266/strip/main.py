@@ -50,6 +50,27 @@ def party():
 
     np.write()
 
+def set_binary(b):
+    """ Set calculated segments based on binary input
+    """
+    segment_map = [0, 0, 0,
+                   1, 1,
+                   2, 2, 2,
+                   3, 3,
+                   4, 4, 4,
+                   5, 5,
+                   6, 6, 6,
+                   7, 7]
+
+    for i in range(0, len(segment_map) - 1):
+        if (pow(2, segment_map[i]) & b):
+            np[i] = (10, 10, 10)
+        else:
+            np[i] = (0, 0, 0)
+
+    np.write()
+
+
 def night_rider_1():
     """ Night rider red wave animation
     based on mod and abs functions
@@ -102,8 +123,17 @@ def gotMessage(topic, msg):
 
     # Address single light via topc - disabled
     # light = int(topic.decode("utf-8").split('/')[-1])
+    s_msg = msg.decode("utf-8")
 
     print("Got message ", msg)
+    command = s_msg.split(' ')[0]
+    payload = s_msg.split(' ')[1]
+
+    print("Command ", command, "Paylod ", payload)
+
+    if command == "b":
+        i = int(payload)
+        set_binary(i)
 
     if msg == b'on':
         startUpAllOn()
