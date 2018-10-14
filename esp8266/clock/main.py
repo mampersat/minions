@@ -64,10 +64,16 @@ def connect_and_sync():
     """
 
     w = network.WLAN(network.STA_IF)
+
+    attempts = 4  # How many times to attempt network connection
     while not w.isconnected():
         # s.connect('ShArVa')
         print("Network not connected - sleeping")
         knight_rider()
+
+        attempts -= 1
+        if not attempts:
+            return()
 
     print("Netowrk connected")
     knight_rider(200, 10)
@@ -84,7 +90,8 @@ def connect_and_sync():
             print("NTP synced")
             ntp_sync = True
 
-    knight_rider(200,0)
+    knight_rider(200, 0)
+
 
 def hour_glass():
     """ Display system clock binary
@@ -109,6 +116,7 @@ def hour_glass():
     connect_and_sync()
 
     nr = False
+    lb = -1
 
     while True:
 
@@ -127,15 +135,18 @@ def hour_glass():
         else:
             nr = False
 
-        for p in range(0, np.n):
-            if (b & pow(2, p)):
-                np[p] = color_array[h % 9]
-            else:
-                np[p] = (0, 0, 0)
-        np.write()
+        if b != lb:
+            for p in range(0, np.n):
+                if (b & pow(2, p)):
+                    np[p] = color_array[h % 9]
+                else:
+                    np[p] = (0, 0, 0)
+            np.write()
+            print("write")
+            lb = b
 
         print("h= {}, m= {}, s= {}, b= {}".format(h, m, s, b))
-        time.sleep_ms(500)
+        time.sleep_ms(10)
 
 
 """ Main control logic
@@ -144,21 +155,3 @@ def hour_glass():
 allOff()
 
 hour_glass()
-
-connected = False
-while not connected:
-    try:
-        print("Connecting")
-        client.connect()
-    except:
-        print("Connection Fail")
-        time.sleep(1)
-    else:
-        connected = True
-
-print("Connected")
-
-client.subscribe(b"strip/anet")
-
-while True:
-    client.wait_msg()
