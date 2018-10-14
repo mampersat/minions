@@ -7,6 +7,7 @@ import math
 import neopixel
 import network
 import time
+import ubinascii
 import uos
 
 from umqtt.simple import MQTTClient
@@ -14,10 +15,12 @@ from umqtt.simple import MQTTClient
 pin = 4
 topic = 'leds'
 broker = 'jarvis'
-client = MQTTClient('leds', broker)
 lights = 32
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
-
+client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
+print("client_id = "+client_id)
+topic = 'leds/' + client_id
+client = MQTTClient(topic, broker)
 
 def allOff():
     """ Turn all the lights off
@@ -100,6 +103,8 @@ def gotMessage(topic, msg):
     # Address single light via topc - disabled
     # light = int(topic.decode("utf-8").split('/')[-1])
 
+    print("Got message ", msg)
+
     if msg == b'on':
         startUpAllOn()
 
@@ -120,8 +125,7 @@ start main loop
 """
 
 allOff()
-# startUpAllOn()
-night_rider_2()
+startUpAllOn()
 
 client.set_callback(gotMessage)
 
@@ -146,7 +150,8 @@ while not connected:
 
 print("Connected")
 
-client.subscribe(b"strip/anet")
+# client.subscribe(b"strip/anet")
+client.subscribe(topic)
 
 while True:
     client.wait_msg()
