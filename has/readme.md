@@ -1,0 +1,26 @@
+# Home Assistant Notes
+Notes on things that are flakey and hard to remember how to fix
+
+## Getting Started
+[This Link](http://jarvis:8123/states) should open the states page
+
+### When the machine reboots, these things currently don't restart correctly
+```
+sudo appdaemon -c /home/homeassistant/conf/
+```
+
+## App Daemon
+Root menu should show at [this link](http://jarvis:5050/)
+
+### SmartThings events not getting to jarvis
+Install instructions: https://www.home-assistant.io/blog/2016/02/09/Smarter-Smart-Things-with-MQTT-and-Home-Assistant/
+Test Smart things is working on android app
+
+In app, from home screen goto "mqtt_brige" and then settings (gear upper right)
+
+Check IP address of MQTT (192.168.1.132 on 2018-04-14, jarvis doesn't work)
+
+Check IP address of MQTT broker on Jarvis in this file `/opt/mqtt-bridge/config.yml` (set to jarvis on 2018-04-14)
+
+on Jarvis: `sudo docker ps` looking for smartthings-mqtt-bridge
+debug with `mosquitto_sub -v -t "#"`
