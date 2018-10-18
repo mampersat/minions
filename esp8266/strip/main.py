@@ -21,6 +21,7 @@ client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
 topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
+print("listening to ", broker, " for ", topic)
 
 def allOff():
     """ Turn all the lights off
@@ -41,6 +42,7 @@ def startUpAllOn():
         time.sleep_ms(10)
         np.write()
 
+
 def party():
     """ Show a lot of colors and animation
     """
@@ -50,25 +52,55 @@ def party():
 
     np.write()
 
+
 def set_binary(b):
     """ Set calculated segments based on binary input
-    """
-    segment_map = [0, 0, 0,
-                   1, 1,
-                   2, 2, 2,
-                   3, 3,
-                   4, 4, 4,
-                   5, 5,
-                   6, 6, 6,
-                   7, 7]
 
-    for i in range(0, len(segment_map) - 1):
-        if (pow(2, segment_map[i]) & b):
+    Mapping is "Every pixel in the strip mapped to binary segment numbers"
+    (Plural NUMBERS is key)
+    """
+    segment_map = [0, 1, 3, 0,
+                   2, 6, 0,
+                   4, 76, 0,
+                   8, 25, 0,
+                   16, 48, 0,
+                   32, 96, 0,
+                   64]
+
+    for i in range(0, len(segment_map)):
+        if (b & segment_map[i]):
             np[i] = (10, 10, 10)
         else:
             np[i] = (0, 0, 0)
 
     np.write()
+
+
+def set_digit(d):
+    """ set a digit 0-9
+    """
+    if d == 0:
+        b = 1 | 2 | 4 | 16 | 32 | 64
+    elif d == 1:
+        b = 4 | 64
+    elif d == 2:
+        b = 2 | 4 | 8 | 16 | 32
+    elif d == 3:
+        b = 2 | 4 | 8 | 64 | 32
+    elif d == 4:
+        b = 1 | 4 | 8 | 64
+    elif d == 5:
+        b = 1 | 2 | 8 | 32 | 64
+    elif d == 6:
+        b = 1 | 2 | 8 | 16 | 32 | 64
+    elif d == 7:
+        b = 2 | 4 | 64
+    elif d == 8:
+        b = 1 | 2 | 4 | 8 | 16 | 32 | 64
+    elif d == 9:
+        b = 1 | 2 | 4 | 8 | 64
+
+    set_binary(b)
 
 
 def night_rider_1():
@@ -117,6 +149,7 @@ def night_rider_2():
         np.write()
         time.sleep_ms(10)
 
+
 def gotMessage(topic, msg):
     print(topic)
     print(msg)
@@ -134,6 +167,10 @@ def gotMessage(topic, msg):
     if command == "b":
         i = int(payload)
         set_binary(i)
+
+    if command == "d":
+        d = int(payload)
+        set_digit(d)
 
     if msg == b'on':
         startUpAllOn()
