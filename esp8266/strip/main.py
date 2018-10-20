@@ -15,7 +15,7 @@ from umqtt.simple import MQTTClient
 pin = 4
 topic = 'leds'
 broker = 'jarvis'
-lights = 32
+lights = 20
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
@@ -36,11 +36,12 @@ def startUpAllOn():
     """ Turn all the lights on starting from the edges
     """
     print("startUpAllOn")
-    for i in range(0, np.n / 2):
-        np[i] = (10, 10, 10)
-        np[(np.n - i) - 1] = (10, 10, 10)
-        time.sleep_ms(10)
-        np.write()
+    for i in range(0, 10):
+        print(i)
+        set_digit(i)
+        time.sleep_ms(750)
+        set_binary(0)
+        time.sleep_ms(250)
 
 
 def party():
@@ -124,14 +125,14 @@ def night_rider_1():
         time.sleep_ms(100)
 
 
-def night_rider_2():
+def night_rider_2(l):
     """ Night rider red wave animation
     based on sin function
     """
 
     periods = 8
 
-    for t in range(0, 1000000):
+    for t in range(0, l):
         for p in range(0, np.n):
 
             f = t * 1.5
@@ -148,6 +149,23 @@ def night_rider_2():
 
         np.write()
         time.sleep_ms(10)
+
+
+def haloween(s):
+    purple = [64, 0, 64]
+    oragne = [64, 19, 0]
+
+    for i in range(0, s):
+            for p in range(0, np.n):
+                if ((p + i) % 9) == 0:
+                    np[p] = oragne
+                elif ((p + i) % 22) == 0:
+                    np[p] = purple
+                else:
+                    np[p] = [0, 0, 0]
+
+            np.write()
+            time.sleep(1)
 
 
 def gotMessage(topic, msg):
@@ -192,7 +210,10 @@ start main loop
 """
 
 allOff()
-startUpAllOn()
+while True:
+    startUpAllOn()
+    haloween(10)
+    night_rider_2(100)
 
 client.set_callback(gotMessage)
 
