@@ -15,7 +15,8 @@ from umqtt.simple import MQTTClient
 pin = 4
 topic = 'leds'
 broker = 'jarvis'
-lights = 20
+lights = 150
+segment_map = [0] * lights
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
@@ -38,10 +39,64 @@ def startUpAllOn():
     print("startUpAllOn")
     for i in range(0, 10):
         print(i)
-        set_digit(i)
+        set_char(str(i))
         time.sleep_ms(750)
         set_binary(0)
         time.sleep_ms(250)
+
+
+def pixel_or(i, a):
+    """ apply or operation to a pixel_or
+    i : index of pixel
+    a : [r, g, b] array to apply
+    """
+    np[i] = (
+        np[i][0] | a[0],
+        np[i][1] | a[1],
+        np[i][2] | a[2])
+
+
+def test_rgb(t):
+    for i in range(0, t):
+        color = [
+            (255, 255, 255), # white
+            (255, 0, 0), # red
+            (0, 255, 0), # green
+            (0, 0, 255)] # blue
+        for c in color:
+
+            for j in range(0, lights):
+                np[j] = c
+
+            np.write()
+            time.sleep(1)
+
+
+def test_trains(t):
+    """ RGB trains running around the strip
+    """
+    for i in range(0, t):
+        # white train
+        j = i % lights
+        pixel_or(j, [255, 255, 255])
+        np[(j - 10) % lights] = [0, 0, 0]
+
+        # blue train
+        j = int(i / 3) % lights
+        pixel_or(j, [0, 0, 255])
+        np[(j - 10) % lights] = [0, 0, 0]
+
+        # green
+        j = -i % lights
+        pixel_or(j, [0, 255, 0])
+        np[(j + 10) % lights] = [0, 0, 0]
+
+        # green
+        j = int(-i / 3) % lights
+        pixel_or(j, [255, 0, 0])
+        np[(j + 10) % lights] = [0, 0, 0]
+
+        np.write()
 
 
 def party():
@@ -60,13 +115,21 @@ def set_binary(b):
     Mapping is "Every pixel in the strip mapped to binary segment numbers"
     (Plural NUMBERS is key)
     """
-    segment_map = [0, 1, 3, 0,
-                   2, 6, 0,
-                   4, 76, 0,
-                   8, 25, 0,
-                   16, 48, 0,
-                   32, 96, 0,
-                   64]
+    # points on the 7 segment display, each corner and middle endpoint
+    endpoint = [0, 21, 42, 63, 84, 105, 126, 150]
+    endpoint = [
+        [21, 42],
+        [0, 12],
+        [105, 126],
+        [84, 105],
+        [63, 84],
+        [42, 63],
+        [125, 150]]
+
+    # map the segments to pixels
+    for s in range(0, 7):
+        for i in range(endpoint[s][0], endpoint[s][1]):
+            segment_map[i] = segment_map[i] | pow(2, s)
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
@@ -102,6 +165,17 @@ def set_digit(d):
         b = 1 | 2 | 4 | 8 | 64
 
     set_binary(b)
+
+
+def set_char(c):
+    """ Char -> 7 segment mappings """
+    # todo move this and other declarations to global space
+    m = {
+        '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F, '4': 0x66, '5': 0x6D,
+        '6': 0x7D, '7': 0x07, '8': 0x7F, '9': 0x6F, 'A': 0x77, 'b': 0x7C,
+        'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71}
+
+    set_binary(m[c])
 
 
 def night_rider_1():
@@ -211,9 +285,11 @@ start main loop
 
 allOff()
 while True:
+    test_rgb(10)
+    test_trains(1000000)
     startUpAllOn()
     haloween(10)
-    night_rider_2(100)
+    #night_rider_2(100)
 
 client.set_callback(gotMessage)
 
