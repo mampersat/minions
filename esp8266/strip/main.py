@@ -59,17 +59,18 @@ def pixel_or(i, a):
 def test_rgb(t):
     for i in range(0, t):
         color = [
-            (255, 255, 255), # white
-            (255, 0, 0), # red
-            (0, 255, 0), # green
-            (0, 0, 255)] # blue
+            (255, 255, 255),  # white
+            (255, 0, 0),      # red
+            (0, 255, 0),      # green
+            (0, 0, 255)]      # blue
         for c in color:
-
-            for j in range(0, lights):
-                np[j] = c
-
-            np.write()
-            time.sleep(1)
+            for x in range(0, 5):
+                for j in range(0, lights):
+                    if (j % 5) == x:
+                        np[j] = c
+                np.write()
+                time.sleep(1)
+            allOff()
 
 
 def test_trains(t):
