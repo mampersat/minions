@@ -24,6 +24,7 @@ topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
+
 def allOff():
     """ Turn all the lights off
     """
@@ -33,10 +34,10 @@ def allOff():
     np.write()
 
 
-def startUpAllOn():
+def test_digits():
     """ Turn all the lights on starting from the edges
     """
-    print("startUpAllOn")
+    print("Test Digits")
     for i in range(0, 10):
         print(i)
         set_char(str(i))
@@ -69,7 +70,7 @@ def test_rgb(t):
                     if (j % 5) == x:
                         np[j] = c
                 np.write()
-                time.sleep(1)
+                time.sleep_ms(200)
             allOff()
 
 
@@ -117,10 +118,9 @@ def set_binary(b):
     (Plural NUMBERS is key)
     """
     # points on the 7 segment display, each corner and middle endpoint
-    endpoint = [0, 21, 42, 63, 84, 105, 126, 150]
     endpoint = [
         [21, 42],
-        [0, 12],
+        [0, 21],
         [105, 126],
         [84, 105],
         [63, 84],
@@ -134,7 +134,7 @@ def set_binary(b):
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
-            np[i] = (10, 10, 10)
+            np[i] = (255, 255, 255)
         else:
             np[i] = (0, 0, 0)
 
@@ -226,9 +226,53 @@ def night_rider_2(l):
         time.sleep_ms(10)
 
 
+def random_star():
+    colors = [
+        (255, 0, 0),   # red
+        (0, 255, 0),   # green
+        (0, 0, 255),   # blue,
+        (255, 255, 0),  # yellow
+        (255, 0, 255), ]  # purple
+
+    star = {}
+    star['pixel'] = int((lights-1) * uos.urandom(1)[0] / 255)
+    star['color'] = colors[int(len(colors) * uos.urandom(1)[0] / 256)]
+    star['speed'] = uos.urandom(1)[0] /256
+    return star
+
+
+def twinkle():
+    starfield = []
+    for i in range(0, 5):
+        starfield.append(random_star())
+
+    while True:
+        for star in starfield:
+            # implement the lifecycle of a star
+            # maximize at half duration
+            # calculate magnitude (brightest at midpoint)
+            print(star)
+            r = star['color'][0]
+            g = star['color'][1]
+            b = star['color'][2]
+            r = int(r * star['speed'])
+            g = int(g * star['speed'])
+            b = int(b * star['speed'])
+            new_color = (r, g, b)
+            star['color'] = new_color
+            np[star['pixel']] = star['color']
+
+            if (r+g+b) == 0:
+                starfield.remove(star)
+                starfield.append(random_star())
+
+        np.write()
+        time.sleep_ms(100)
+
+
 def haloween(s):
-    purple = [64, 0, 64]
-    oragne = [64, 19, 0]
+    purple = [255, 0, 255]
+    oragne = [255, 128, 0]
 
     for i in range(0, s):
             for p in range(0, np.n):
@@ -266,7 +310,7 @@ def gotMessage(topic, msg):
         set_digit(d)
 
     if msg == b'on':
-        startUpAllOn()
+        test_digits()
 
     if msg == b'off':
         allOff()
@@ -286,11 +330,12 @@ start main loop
 
 allOff()
 while True:
-    test_rgb(10)
-    test_trains(1000000)
-    startUpAllOn()
+    twinkle()
+    test_rgb(1)
+    test_trains(300)
+    test_digits()
     haloween(10)
-    #night_rider_2(100)
+    #  night_rider_2(100)
 
 client.set_callback(gotMessage)
 
