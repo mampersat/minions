@@ -24,6 +24,36 @@ topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
+haloween_pallet = [
+    (255, 140, 0),  # orange
+    (255, 0, 255),  # purple
+    (0, 255, 0),    # green
+]
+
+christmas_pallet = [
+    (255, 0, 0),  # red
+    (0, 255, 0),  # green
+]
+
+
+fall_pallet = [
+    (255, 0, 0),  # red
+    (0, 255, 0),  # green
+    (255, 255, 0),  # yellow
+    (255, 140, 0),  # orange
+     ]
+
+all_pallet = [
+    (255, 0, 0),  # red
+    (0, 255, 0),  # green
+    (0, 0, 255),  # blue,
+    (255, 255, 0),  # yellow
+    (255, 0, 255),  # purple
+    (0, 255, 255),
+    (255, 140, 0),  # orange
+     ]  # purple
+
+pallet = fall_pallet
 
 def allOff():
     """ Turn all the lights off
@@ -227,31 +257,21 @@ def night_rider_2(l):
 
 
 def random_star():
-    colors = [
-        (255, 0, 0),   # red
-        (0, 255, 0),   # green
-        (0, 0, 255),   # blue,
-        (255, 255, 0),  # yellow
-        (255, 0, 255), ]  # purple
-
     star = {}
     star['pixel'] = int((lights-1) * uos.urandom(1)[0] / 255)
-    star['color'] = colors[int(len(colors) * uos.urandom(1)[0] / 256)]
+    star['color'] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
     star['speed'] = uos.urandom(1)[0] /256
     return star
 
 
 def twinkle():
     starfield = []
-    for i in range(0, 5):
+    for i in range(0, 10):
         starfield.append(random_star())
 
     while True:
         for star in starfield:
-            # implement the lifecycle of a star
-            # maximize at half duration
-            # calculate magnitude (brightest at midpoint)
-            print(star)
+            # print(star)
             r = star['color'][0]
             g = star['color'][1]
             b = star['color'][2]
@@ -267,7 +287,7 @@ def twinkle():
                 starfield.append(random_star())
 
         np.write()
-        time.sleep_ms(100)
+        time.sleep_ms(50)
 
 
 def haloween(s):
