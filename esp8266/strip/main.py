@@ -24,6 +24,16 @@ topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
+# points on the 7 segment display, each corner and middle endpoint
+endpoint = [
+    [21, 42],
+    [0, 21],
+    [105, 126],
+    [84, 105],
+    [63, 84],
+    [42, 63],
+    [125, 150]]
+
 haloween_pallet = [
     (255, 140, 0),  # orange
     (255, 0, 255),  # purple
@@ -34,7 +44,6 @@ christmas_pallet = [
     (255, 0, 0),  # red
     (0, 255, 0),  # green
 ]
-
 
 fall_pallet = [
     (255, 0, 0),  # red
@@ -55,10 +64,32 @@ all_pallet = [
 
 pallet = fall_pallet
 
+
+def setup_device():
+    """ Configure installed device
+    Based on client_id setup the pixel mapping etc
+    points on the 7 segment display, each corner and middle endpoint
+    See diagram for order of segments
+    https://en.wikipedia.org/wiki/Seven-segment_display
+    """
+    global lights, endpoint
+    if client_id == "esp8266_8b0e1200":
+        publish("Config small test segment")
+        lights = 27
+        endpoint = [
+            [3, 8],    # A
+            [0, 3],    # B
+            [18, 22],  # C
+            [14, 18],  # D
+            [11, 14],  # E
+            [7, 11],   # F
+            [22, 26]]  # G
+
+
 def allOff():
     """ Turn all the lights off
     """
-    print("allOff")
+    publish("allOff")
     for i in range(0, np.n):
         np[i] = (0, 0, 0)
     np.write()
@@ -67,7 +98,7 @@ def allOff():
 def test_digits():
     """ Turn all the lights on starting from the edges
     """
-    print("Test Digits")
+    publish("Test Digits")
     for i in range(0, 10):
         print(i)
         set_char(str(i))
@@ -134,7 +165,7 @@ def test_trains(t):
 def party():
     """ Show a lot of colors and animation
     """
-    print("Party")
+    publish("Party")
     for i in range(0, np.n):
         np[i] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
 
@@ -144,63 +175,29 @@ def party():
 def set_binary(b):
     """ Set calculated segments based on binary input
 
-    Mapping is "Every pixel in the strip mapped to binary segment numbers"
-    (Plural NUMBERS is key)
+    endpoint[] describes the beginning and end of a segment
+    segment_map[] maps each pixel to binary representation of segments it's in
     """
-    # points on the 7 segment display, each corner and middle endpoint
-    endpoint = [
-        [21, 42],
-        [0, 21],
-        [105, 126],
-        [84, 105],
-        [63, 84],
-        [42, 63],
-        [125, 150]]
 
     # map the segments to pixels
     for s in range(0, 7):
-        for i in range(endpoint[s][0], endpoint[s][1]):
+        for i in range(endpoint[s][0], endpoint[s][1] + 1):
             segment_map[i] = segment_map[i] | pow(2, s)
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
-            np[i] = (255, 255, 255)
+            np[i] = (10, 10, 10)
         else:
             np[i] = (0, 0, 0)
 
     np.write()
 
 
-def set_digit(d):
-    """ set a digit 0-9
-    """
-    if d == 0:
-        b = 1 | 2 | 4 | 16 | 32 | 64
-    elif d == 1:
-        b = 4 | 64
-    elif d == 2:
-        b = 2 | 4 | 8 | 16 | 32
-    elif d == 3:
-        b = 2 | 4 | 8 | 64 | 32
-    elif d == 4:
-        b = 1 | 4 | 8 | 64
-    elif d == 5:
-        b = 1 | 2 | 8 | 32 | 64
-    elif d == 6:
-        b = 1 | 2 | 8 | 16 | 32 | 64
-    elif d == 7:
-        b = 2 | 4 | 64
-    elif d == 8:
-        b = 1 | 2 | 4 | 8 | 16 | 32 | 64
-    elif d == 9:
-        b = 1 | 2 | 4 | 8 | 64
-
-    set_binary(b)
-
-
 def set_char(c):
     """ Char -> 7 segment mappings """
     # todo move this and other declarations to global space
+    # https://en.wikipedia.org/wiki/Seven-segment_display#Displaying_letters
+
     m = {
         '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F, '4': 0x66, '5': 0x6D,
         '6': 0x7D, '7': 0x07, '8': 0x7F, '9': 0x6F, 'A': 0x77, 'b': 0x7C,
@@ -260,18 +257,22 @@ def random_star():
     star = {}
     star['pixel'] = int((lights-1) * uos.urandom(1)[0] / 255)
     star['color'] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
-    star['speed'] = uos.urandom(1)[0] /256
+    star['speed'] = uos.urandom(1)[0] / 256
     return star
 
 
-def twinkle():
+def twinkle(t):
+    """ twikling star pattern
+    """
+    publish("twinkle")
+
     starfield = []
     for i in range(0, 10):
         starfield.append(random_star())
 
-    while True:
+    for i in range(0, t * 20):
+        client.check_msg()
         for star in starfield:
-            # print(star)
             r = star['color'][0]
             g = star['color'][1]
             b = star['color'][2]
@@ -305,6 +306,30 @@ def haloween(s):
 
             np.write()
             time.sleep(1)
+
+
+def frangable_publish(topic, payload):
+    """If power goes out - we may try to log before homeassistant is back
+    so if we fail - sleep a bit and try to reconnect the mqtt client
+    drop current message on the floor
+    """
+    try:
+        client.publish(topic, payload)
+        print("Wrote", payload, " to ", topic)
+    except:
+        print("failed to log, sleeping 10")
+        time.sleep(10)
+        try:
+            client.connect()
+        except:
+            print("failed to connect")
+
+
+def publish(message):
+    """ publish to topic containing device_id
+    """
+    print(message)
+    frangable_publish("/strip/health/" + client_id, message)
 
 
 def gotMessage(topic, msg):
@@ -348,16 +373,7 @@ Register Callbacks
 start main loop
 """
 
-allOff()
-while True:
-    twinkle()
-    test_rgb(1)
-    test_trains(300)
-    test_digits()
-    haloween(10)
-    #  night_rider_2(100)
-
-client.set_callback(gotMessage)
+setup_device()
 
 s = network.WLAN(network.STA_IF)
 while not s.isconnected():
@@ -379,9 +395,20 @@ while not connected:
         connected = True
 
 print("Connected")
+publish("alive")
 
 # client.subscribe(b"strip/anet")
+client.set_callback(gotMessage)
 client.subscribe(topic)
+
+allOff()
+
+while True:
+    twinkle(10)
+    test_rgb(1)
+    test_trains(300)
+    test_digits()
+    night_rider_2(100)
 
 while True:
     client.wait_msg()
