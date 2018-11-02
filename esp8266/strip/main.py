@@ -16,6 +16,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
+segment = [0] * 7
 segment_map = [0] * lights
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
@@ -25,6 +26,7 @@ client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
 # points on the 7 segment display, each corner and middle endpoint
+"""
 endpoint = [
     [21, 42],
     [0, 21],
@@ -33,6 +35,7 @@ endpoint = [
     [63, 84],
     [42, 63],
     [125, 150]]
+"""
 
 haloween_pallet = [
     (255, 140, 0),  # orange
@@ -72,18 +75,17 @@ def setup_device():
     See diagram for order of segments
     https://en.wikipedia.org/wiki/Seven-segment_display
     """
-    global lights, endpoint
+    global lights, segment
     if client_id == "esp8266_8b0e1200":
         publish("Config small test segment")
         lights = 27
-        endpoint = [
-            [3, 8],    # A
-            [0, 3],    # B
-            [18, 22],  # C
-            [14, 18],  # D
-            [11, 14],  # E
-            [7, 11],   # F
-            [22, 26]]  # G
+        segment[0] = [i for i in range(3, 8)]
+        segment[1] = [i for i in range(0, 4)]
+        segment[2] = [i for i in range(18, 22)]
+        segment[3] = [i for i in range(14, 18)]
+        segment[4] = [i for i in range(11, 14)]
+        segment[5] = [i for i in range(7, 12)]
+        segment[6] = [i for i in range(22, 27)]
 
 
 def allOff():
@@ -181,13 +183,13 @@ def party():
 def set_binary(b):
     """ Set calculated segments based on binary input
 
-    endpoint[] describes the beginning and end of a segment
+    segment[] describes the each segment
     segment_map[] maps each pixel to binary representation of segments it's in
     """
 
     # map the segments to pixels
     for s in range(0, 7):
-        for i in range(endpoint[s][0], endpoint[s][1]):
+        for i in segment[s]:
             segment_map[i] = segment_map[i] | pow(2, s)
 
     for i in range(0, len(segment_map)):
@@ -251,7 +253,13 @@ def twinkle(t):
 
 
 def random_flake():
+    """ Initialize a snow flake
+    """
     flake = {}
+
+    # Either left or right side of window
+    if uos.urandom(1)[0] > 128:
+        flake['path'] = segment[1]
     flake['path'] = range(0, 10)
     flake['pos'] = 0
     return flake
@@ -379,8 +387,8 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    snow(1000)
-    twinkle(10)
-    test_rgb(1)
+    # snow(1000)
+    # twinkle(10)
+    # test_rgb(1)
     # test_trains(300)
-    # test_digits()
+    test_digits()
