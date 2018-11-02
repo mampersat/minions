@@ -79,13 +79,13 @@ def setup_device():
     if client_id == "esp8266_8b0e1200":
         publish("Config small test segment")
         lights = 27
-        segment[0] = [i for i in range(3, 8)]
-        segment[1] = [i for i in range(0, 4)]
-        segment[2] = [i for i in range(18, 22)]
-        segment[3] = [i for i in range(14, 18)]
-        segment[4] = [i for i in range(11, 14)]
-        segment[5] = [i for i in range(7, 12)]
-        segment[6] = [i for i in range(22, 27)]
+        segment[0] = [i for i in range(3, 8)]    # a
+        segment[1] = [i for i in range(0, 4)]    # b
+        segment[2] = [i for i in range(18, 23)]  # c
+        segment[3] = [i for i in range(14, 18)]  # d
+        segment[4] = [i for i in range(11, 14)]  # e
+        segment[5] = [i for i in range(7, 12)]   # f
+        segment[6] = [i for i in range(22, 27)]  # g
 
 
 def allOff():
@@ -97,8 +97,18 @@ def allOff():
     np.write()
 
 
+def test_segments():
+    """ test segment setup
+    """
+    publish("Test Segments")
+    for i in range(0, 7):
+        set_binary(pow(2, i))
+        time.sleep_ms(100)
+        set_binary(0)
+
+
 def test_digits():
-    """ Turn all the lights on starting from the edges
+    """ Run through 0->9
     """
     publish("Test Digits")
     for i in range(0, 10):
@@ -391,4 +401,5 @@ while True:
     # twinkle(10)
     # test_rgb(1)
     # test_trains(300)
-    test_digits()
+    # test_digits()
+    test_segments()
