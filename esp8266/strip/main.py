@@ -119,6 +119,10 @@ def pixel_or(i, a):
 
 
 def test_rgb(t):
+    """ set every pixel to white, red, green then blue
+    """
+    publish("test rgb")
+
     for i in range(0, t):
         color = [
             (255, 255, 255),  # white
@@ -138,6 +142,8 @@ def test_rgb(t):
 def test_trains(t):
     """ RGB trains running around the strip
     """
+    publish("test trains")
+
     for i in range(0, t):
         # white train
         j = i % lights
@@ -181,7 +187,7 @@ def set_binary(b):
 
     # map the segments to pixels
     for s in range(0, 7):
-        for i in range(endpoint[s][0], endpoint[s][1] + 1):
+        for i in range(endpoint[s][0], endpoint[s][1]):
             segment_map[i] = segment_map[i] | pow(2, s)
 
     for i in range(0, len(segment_map)):
@@ -204,53 +210,6 @@ def set_char(c):
         'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71}
 
     set_binary(m[c])
-
-
-def night_rider_1():
-    """ Night rider red wave animation
-    based on mod and abs functions
-    """
-    tf = 14
-    for t in range(0, 10000):
-        for p in range(0, np.n):
-            pm = p % 8
-            v = (tf/2) - abs(pm - abs((t % tf)-(tf / 2)))
-            v = int(v)
-            if v == 7:
-                np[p] = (10, 0, 0)
-            elif v == 6:
-                np[p] = (1, 0, 0)
-            else:
-                np[p] = (0, 0, 0)
-
-        np.write()
-        time.sleep_ms(100)
-
-
-def night_rider_2(l):
-    """ Night rider red wave animation
-    based on sin function
-    """
-
-    periods = 8
-
-    for t in range(0, l):
-        for p in range(0, np.n):
-
-            f = t * 1.5
-
-            v1 = math.cos(f / periods + p/2) - 0.7
-            v1 = max(0, v1)
-
-            v2 = math.cos(-f / periods + p/2) - 0.7
-            v2 = max(0, v2)
-
-            r = int(v1 * 50) + int(v2 * 50)
-
-            np[p] = (r, 0, 0)
-
-        np.write()
-        time.sleep_ms(10)
 
 
 def random_star():
@@ -291,21 +250,37 @@ def twinkle(t):
         time.sleep_ms(50)
 
 
-def haloween(s):
-    purple = [255, 0, 255]
-    oragne = [255, 128, 0]
+def random_flake():
+    flake = {}
+    flake['path'] = range(0, 10)
+    flake['pos'] = 0
+    return flake
 
-    for i in range(0, s):
-            for p in range(0, np.n):
-                if ((p + i) % 9) == 0:
-                    np[p] = oragne
-                elif ((p + i) % 22) == 0:
-                    np[p] = purple
-                else:
-                    np[p] = [0, 0, 0]
 
-            np.write()
-            time.sleep(1)
+def snow(t):
+    """ using segments A B and F E, show snow falling
+    """
+    publish("snow")
+
+    storm = []
+    for i in range(0, 1):
+        storm.append(random_flake())
+
+    for i in range(0, t):
+        for flake in storm:
+            # clear prev pixel
+            np[flake['pos']] = [0, 0, 0]
+
+            flake['pos'] += 1
+
+            if flake['pos'] > lights:
+                storm.remove(flake)
+                storm.append(random_flake())
+            else:
+                np[flake['pos']] = [5, 5, 5]
+
+        np.write()
+        time.sleep_ms(50)
 
 
 def frangable_publish(topic, payload):
@@ -317,8 +292,8 @@ def frangable_publish(topic, payload):
         client.publish(topic, payload)
         print("Wrote", payload, " to ", topic)
     except:
-        print("failed to log, sleeping 10")
-        time.sleep(10)
+        print("failed to log, sleeping 1")
+        time.sleep(1)
         try:
             client.connect()
         except:
@@ -404,11 +379,8 @@ client.subscribe(topic)
 allOff()
 
 while True:
+    snow(1000)
     twinkle(10)
     test_rgb(1)
-    test_trains(300)
-    test_digits()
-    night_rider_2(100)
-
-while True:
-    client.wait_msg()
+    # test_trains(300)
+    # test_digits()
