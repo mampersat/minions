@@ -77,15 +77,15 @@ def setup_device():
     """
     global lights, segment
     if client_id == "esp8266_8b0e1200":
-        publish("Config small test segment")
-        lights = 27
-        segment[0] = [i for i in range(3, 8)]    # a
-        segment[1] = [i for i in range(0, 4)]    # b
-        segment[2] = [i for i in range(18, 23)]  # c
+        publish("Config 3x5 test device")
+        lights = 21
+        segment[0] = [i for i in range(2, 6)]    # a
+        segment[1] = [i for i in range(5, 9)]    # b
+        segment[2] = [i for i in range(17, 20)] + [8]  # c
         segment[3] = [i for i in range(14, 18)]  # d
-        segment[4] = [i for i in range(11, 14)]  # e
-        segment[5] = [i for i in range(7, 12)]   # f
-        segment[6] = [i for i in range(22, 27)]  # g
+        segment[4] = [i for i in range(11, 15)]  # e
+        segment[5] = [i for i in range(0, 3)]   # f
+        segment[6] = [i for i in range(8, 12)]  # g
 
 
 def allOff():
@@ -259,7 +259,7 @@ def binary_index_blink(t):
     maxlen = round(math.log(lights, 2))
     for x in range(0, maxlen):  # for each possible binary digit
         for i in range(0, lights):  # for each pixel
-            np[i] = (255, 0, 0)
+            np[i] = (10, 0, 0)
             b = bin(i)[2:]  # drop first 2 char
 
             print("x=" + str(x) + " b=" + b)
@@ -268,7 +268,7 @@ def binary_index_blink(t):
                 np[i] = (0, 0, 0)
             else:
                 if b[x] == '1':
-                    np[i] = (0, 255, 0)
+                    np[i] = (0, 10, 0)
         np.write()
         time.sleep_ms(10)
         allOff()

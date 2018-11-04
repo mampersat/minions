@@ -5,6 +5,17 @@ a resting space for code that works, but due to memory constraints had to
 be removed from the main.py file
 """
 
+    if cliend_id == "dead test segment, so sad":
+        publish("Config small test segment")
+        lights = 27
+        segment[0] = [i for i in range(3, 8)]    # a
+        segment[1] = [i for i in range(0, 4)]    # b
+        segment[2] = [i for i in range(18, 23)]  # c
+        segment[3] = [i for i in range(14, 18)]  # d
+        segment[4] = [i for i in range(11, 14)]  # e
+        segment[5] = [i for i in range(7, 12)]   # f
+        segment[6] = [i for i in range(22, 27)]  # g
+
 
 def morse(t):
     """ morse
