@@ -119,67 +119,6 @@ def test_digits():
         time.sleep_ms(250)
 
 
-def pixel_or(i, a):
-    """ apply or operation to a pixel_or
-    i : index of pixel
-    a : [r, g, b] array to apply
-    """
-    np[i] = (
-        np[i][0] | a[0],
-        np[i][1] | a[1],
-        np[i][2] | a[2])
-
-
-def test_rgb(t):
-    """ set every pixel to white, red, green then blue
-    """
-    publish("test rgb")
-
-    for i in range(0, t):
-        color = [
-            (255, 255, 255),  # white
-            (255, 0, 0),      # red
-            (0, 255, 0),      # green
-            (0, 0, 255)]      # blue
-        for c in color:
-            for x in range(0, 5):
-                for j in range(0, lights):
-                    if (j % 5) == x:
-                        np[j] = c
-                np.write()
-                time.sleep_ms(200)
-            allOff()
-
-
-def test_trains(t):
-    """ RGB trains running around the strip
-    """
-    publish("test trains")
-
-    for i in range(0, t):
-        # white train
-        j = i % lights
-        pixel_or(j, [255, 255, 255])
-        np[(j - 10) % lights] = [0, 0, 0]
-
-        # blue train
-        j = int(i / 3) % lights
-        pixel_or(j, [0, 0, 255])
-        np[(j - 10) % lights] = [0, 0, 0]
-
-        # green
-        j = -i % lights
-        pixel_or(j, [0, 255, 0])
-        np[(j + 10) % lights] = [0, 0, 0]
-
-        # green
-        j = int(-i / 3) % lights
-        pixel_or(j, [255, 0, 0])
-        np[(j + 10) % lights] = [0, 0, 0]
-
-        np.write()
-
-
 def party():
     """ Show a lot of colors and animation
     """
@@ -269,8 +208,10 @@ def random_flake():
 
     # Either left or right side of window
     if uos.urandom(1)[0] > 128:
-        flake['path'] = segment[1]
-    flake['path'] = range(0, 10)
+        flake['path'] = segment[1] + segment[2]
+    else:
+        flake['path'] = segment[5] + segment[4]
+
     flake['pos'] = 0
     return flake
 
@@ -286,19 +227,78 @@ def snow(t):
 
     for i in range(0, t):
         for flake in storm:
+            print(flake['path'])
+
+            pos = flake['pos']
+
+            pixel = flake['path'][pos]
+            print("pixel = off", pixel)
+
             # clear prev pixel
-            np[flake['pos']] = [0, 0, 0]
+            np[flake['path'][pos]] = [0, 0, 0]
 
             flake['pos'] += 1
 
-            if flake['pos'] > lights:
+            if flake['pos'] >= len(flake['path']):
                 storm.remove(flake)
                 storm.append(random_flake())
             else:
-                np[flake['pos']] = [5, 5, 5]
+                pixel = flake['path'][pos]
+                print("pixel ON= ", pixel)
+
+                np[pixel] = [25, 25, 25]
 
         np.write()
         time.sleep_ms(50)
+
+
+def morse_sequence(x):
+    """ morse_sequence
+    calculate the string of on (1) and off (0) over time for a single char
+    """
+
+
+def morse(t):
+    """ morse
+    blink the pixels index in morse code
+    """
+    CODE = {
+        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+        }
+
+    ditlen = 1
+    dahlen = 2
+    seplen = 1
+    breaklen = 2
+    maxindexlen = len(str(lights))
+    maxlen = maxindexlen * 5 * dahlen + seplen * (maxindexlen - 1)
+    print("maxlen= " + str(maxlen))
+
+    for x in range(0, maxlen):  # for each 0/1 in the morse sequence
+        print("x= " + str(x))
+        for i in range(0, lights):  # for every light in the strip
+            s = str(i)
+            seq = ""
+            for char in s:
+                code = CODE[char]
+                for char in code:
+                    if char == '.':  # dit
+                        seq += "1" * ditlen
+                    else:  # dah
+                        seq += "1" * dahlen
+                    seq += "0" * seplen
+                seq += "0" * breaklen
+            print("index " + str(i) + " : " + seq)
+
+            if x < len(seq):
+                if seq[x] == '1':
+                    np[i] = (255, 255, 255)
+                else:
+                    np[i] = (0, 0, 0)
+
+        np.write()
+        time.sleep_ms(10)
 
 
 def frangable_publish(topic, payload):
@@ -397,9 +397,11 @@ client.subscribe(topic)
 allOff()
 
 while True:
+    morse(100)
     # snow(1000)
     # twinkle(10)
     # test_rgb(1)
     # test_trains(300)
     # test_digits()
     test_segments()
+    # party()
