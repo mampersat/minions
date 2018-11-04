@@ -252,47 +252,28 @@ def snow(t):
         time.sleep_ms(50)
 
 
-def morse(t):
-    """ morse
-    blink the pixels index in morse code
+def binary_index_blink(t):
+    """ binary_index_blink
+    blink the binary red/green pattern of each pixels index
     """
-    CODE = {
-        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
-        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
-        }
+    maxlen = round(math.log(lights, 2))
+    for x in range(0, maxlen):  # for each possible binary digit
+        for i in range(0, lights):  # for each pixel
+            np[i] = (255, 0, 0)
+            b = bin(i)[2:]  # drop first 2 char
 
-    ditlen = 1
-    dahlen = 2
-    seplen = 1
-    breaklen = 2
-    maxindexlen = len(str(lights))
-    maxlen = maxindexlen * 5 * dahlen + seplen * (maxindexlen - 1)
-    print("maxlen= " + str(maxlen))
+            print("x=" + str(x) + " b=" + b)
 
-    for x in range(0, maxlen):  # for each 0/1 in the morse sequence
-        print("x= " + str(x))
-        for i in range(0, lights):  # for every light in the strip
-            s = str(i)
-            seq = ""
-            for char in s:
-                code = CODE[char]
-                for char in code:
-                    if char == '.':  # dit
-                        seq += "1" * ditlen
-                    else:  # dah
-                        seq += "1" * dahlen
-                    seq += "0" * seplen
-                seq += "0" * breaklen
-            print("index " + str(i) + " : " + seq)
-
-            if x < len(seq):
-                if seq[x] == '1':
-                    np[i] = (255, 255, 255)
-                else:
-                    np[i] = (0, 0, 0)
-
+            if x >= len(b):
+                np[i] = (0, 0, 0)
+            else:
+                if b[x] == '1':
+                    np[i] = (0, 255, 0)
         np.write()
         time.sleep_ms(10)
+        allOff()
+        time.sleep_ms(10)
+
 
 
 def frangable_publish(topic, payload):
@@ -391,7 +372,8 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    morse(100)
+    binary_index_blink(100)
+    # morse(100)
     # snow(1000)
     # twinkle(10)
     # test_rgb(1)
