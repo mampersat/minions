@@ -252,12 +252,6 @@ def snow(t):
         time.sleep_ms(50)
 
 
-def morse_sequence(x):
-    """ morse_sequence
-    calculate the string of on (1) and off (0) over time for a single char
-    """
-
-
 def morse(t):
     """ morse
     blink the pixels index in morse code
