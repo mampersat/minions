@@ -1,7 +1,3 @@
-""" LED Strip Control
-
-Control led lights based on MQTT messages
-"""
 import machine
 import math
 import neopixel
@@ -16,7 +12,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
-segment = [0] * 7
+segment = [[0]] * 7
 segment_map = [0] * lights
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
@@ -25,56 +21,7 @@ topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
-# points on the 7 segment display, each corner and middle endpoint
-"""
-endpoint = [
-    [21, 42],
-    [0, 21],
-    [105, 126],
-    [84, 105],
-    [63, 84],
-    [42, 63],
-    [125, 150]]
-"""
-
-haloween_pallet = [
-    (255, 140, 0),  # orange
-    (255, 0, 255),  # purple
-    (0, 255, 0),    # green
-]
-
-christmas_pallet = [
-    (255, 0, 0),  # red
-    (0, 255, 0),  # green
-]
-
-fall_pallet = [
-    (255, 0, 0),  # red
-    (0, 255, 0),  # green
-    (255, 255, 0),  # yellow
-    (255, 140, 0),  # orange
-     ]
-
-all_pallet = [
-    (255, 0, 0),  # red
-    (0, 255, 0),  # green
-    (0, 0, 255),  # blue,
-    (255, 255, 0),  # yellow
-    (255, 0, 255),  # purple
-    (0, 255, 255),
-    (255, 140, 0),  # orange
-     ]  # purple
-
-pallet = fall_pallet
-
-
 def setup_device():
-    """ Configure installed device
-    Based on client_id setup the pixel mapping etc
-    points on the 7 segment display, each corner and middle endpoint
-    See diagram for order of segments
-    https://en.wikipedia.org/wiki/Seven-segment_display
-    """
     global lights, segment
     if client_id == "esp8266_8b0e1200":
         publish("Config 3x5 test device")
@@ -84,8 +31,30 @@ def setup_device():
         segment[2] = [i for i in range(17, 20)] + [8]  # c
         segment[3] = [i for i in range(14, 18)]  # d
         segment[4] = [i for i in range(11, 15)]  # e
-        segment[5] = [i for i in range(0, 3)]   # f
+        segment[5] = [i for i in range(0, 3)] + [11]   # f
         segment[6] = [i for i in range(8, 12)]  # g
+
+    if client_id == "esp8266_609a1100":
+        publish("Config window 1")
+        lights = 150
+        segment[0] = [i for i in range(22, 48)]    # a
+        segment[1] = [i for i in range(48, 71)]    # b
+        segment[2] = [i for i in range(71, 93)]  # c
+        segment[3] = [i for i in range(93, 120)]  # d
+        segment[4] = [i for i in range(120, 145)]  # e
+        segment[5] = [i for i in range(0, 22)]   # f
+        segment[6] = [i for i in range(145, 150)]  # g
+
+    if client_id == "esp8266_8f141200":
+        publish("Confic 4x8 test device")
+        lights = 24
+        segment[0] = [i for i in range(13, 18)]    # a
+        segment[1] = [i for i in range(17, 22)]    # b
+        segment[2] = [21] + [i for i in range(0, 3)]  # c
+        segment[3] = [i for i in range(2, 8)]  # d
+        segment[4] = [i for i in range(6, 11)]  # e
+        segment[5] = [i for i in range(10, 15)]   # f
+        segment[6] = [i for i in range(21, 27)] + [10] # g
 
 
 def allOff():
@@ -118,23 +87,7 @@ def test_digits():
         set_binary(0)
         time.sleep_ms(250)
 
-
-def party():
-    """ Show a lot of colors and animation
-    """
-    publish("Party")
-    for i in range(0, np.n):
-        np[i] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
-
-    np.write()
-
-
 def set_binary(b):
-    """ Set calculated segments based on binary input
-
-    segment[] describes the each segment
-    segment_map[] maps each pixel to binary representation of segments it's in
-    """
 
     # map the segments to pixels
     for s in range(0, 7):
@@ -151,9 +104,6 @@ def set_binary(b):
 
 
 def set_char(c):
-    """ Char -> 7 segment mappings """
-    # todo move this and other declarations to global space
-    # https://en.wikipedia.org/wiki/Seven-segment_display#Displaying_letters
 
     m = {
         '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F, '4': 0x66, '5': 0x6D,
@@ -235,9 +185,10 @@ def snow(t):
             print("pixel = off", pixel)
 
             # clear prev pixel
-            np[flake['path'][pos]] = [0, 0, 0]
+            np[pixel] = [0, 0, 0]
 
             flake['pos'] += 1
+            pos = flake['pos']
 
             if flake['pos'] >= len(flake['path']):
                 storm.remove(flake)
@@ -249,27 +200,24 @@ def snow(t):
                 np[pixel] = [25, 25, 25]
 
         np.write()
-        time.sleep_ms(50)
+        time.sleep_ms(500)
 
 
 def binary_index_blink(t):
-    """ binary_index_blink
-    blink the binary red/green pattern of each pixels index
-    """
-    maxlen = round(math.log(lights, 2))
+    publish("binary index blink")
+    maxlen = math.ceil(math.log(lights, 2))
     for x in range(0, maxlen):  # for each possible binary digit
         for i in range(0, lights):  # for each pixel
-            np[i] = (10, 0, 0)
+            np[i] = (255, 0, 0)
             b = bin(i)[2:]  # drop first 2 char
-
-            print("x=" + str(x) + " b=" + b)
 
             if x >= len(b):
                 np[i] = (0, 0, 0)
             else:
                 if b[x] == '1':
-                    np[i] = (0, 10, 0)
+                    np[i] = (0, 255, 0)
         np.write()
+        print("blink x=" + str(x))
         time.sleep_ms(10)
         allOff()
         time.sleep_ms(10)
@@ -277,10 +225,6 @@ def binary_index_blink(t):
 
 
 def frangable_publish(topic, payload):
-    """If power goes out - we may try to log before homeassistant is back
-    so if we fail - sleep a bit and try to reconnect the mqtt client
-    drop current message on the floor
-    """
     try:
         client.publish(topic, payload)
         print("Wrote", payload, " to ", topic)
@@ -309,37 +253,6 @@ def gotMessage(topic, msg):
     s_msg = msg.decode("utf-8")
 
     print("Got message ", msg)
-    command = s_msg.split(' ')[0]
-    payload = s_msg.split(' ')[1]
-
-    print("Command ", command, "Paylod ", payload)
-
-    if command == "b":
-        i = int(payload)
-        set_binary(i)
-
-    if command == "d":
-        d = int(payload)
-        set_digit(d)
-
-    if msg == b'on':
-        test_digits()
-
-    if msg == b'off':
-        allOff()
-
-    if msg == b'party':
-        party()
-        print("Party")
-
-
-""" Main control logic
-
-Initialize neopixels
-Connect to network
-Register Callbacks
-start main loop
-"""
 
 setup_device()
 
@@ -372,12 +285,8 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    binary_index_blink(100)
-    # morse(100)
+    # binary_index_blink(100)
     # snow(1000)
     # twinkle(10)
-    # test_rgb(1)
-    # test_trains(300)
     # test_digits()
     test_segments()
-    # party()

@@ -58,3 +58,47 @@ def morse(t):
 
         np.write()
         time.sleep_ms(10)
+
+
+
+
+        def party():
+            """ Show a lot of colors and animation
+            """
+            publish("Party")
+            for i in range(0, np.n):
+                np[i] = (uos.urandom(1)[0], uos.urandom(1)[0], uos.urandom(1)[0])
+
+            np.write()
+
+def gotMessage(topic, msg):
+    print(topic)
+    print(msg)
+
+    # Address single light via topc - disabled
+    # light = int(topic.decode("utf-8").split('/')[-1])
+    s_msg = msg.decode("utf-8")
+
+    print("Got message ", msg)
+    command = s_msg.split(' ')[0]
+    payload = s_msg.split(' ')[1]
+
+    print("Command ", command, "Paylod ", payload)
+
+    if command == "b":
+        i = int(payload)
+        set_binary(i)
+
+    if command == "d":
+        d = int(payload)
+        set_digit(d)
+
+    if msg == b'on':
+        test_digits()
+
+    if msg == b'off':
+        allOff()
+
+    if msg == b'party':
+        party()
+        print("Party")
