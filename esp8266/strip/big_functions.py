@@ -102,3 +102,15 @@ def gotMessage(topic, msg):
     if msg == b'party':
         party()
         print("Party")
+
+
+def test_digits():
+    """ Run through 0->9
+    """
+    publish("Test Digits")
+    for i in range(0, 10):
+        print(i)
+        set_char(str(i))
+        time.sleep_ms(750)
+        set_binary(0)
+        time.sleep_ms(250)

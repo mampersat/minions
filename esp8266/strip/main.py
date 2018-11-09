@@ -2,6 +2,7 @@ import machine
 import math
 import neopixel
 import network
+import ntptime
 import time
 import ubinascii
 import uos
@@ -12,7 +13,12 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
+brightness = 255
+
 segment = [[0]] * 7
+for i in range(0, 7):
+    segment[i] = [x for x in range(i * 21, (i+1)*21)]
+
 segment_map = [0] * lights
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
@@ -21,7 +27,15 @@ topic = 'leds/' + client_id
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
+pallet = [
+    (255, 0, 0),  # red
+    (0, 255, 0),  # green
+    (255, 255, 0),  # yellow
+    (255, 140, 0),  # orange
+     ]
+
 def setup_device():
+    return
     global lights, segment
     if client_id == "esp8266_8b0e1200":
         publish("Config 3x5 test device")
@@ -54,38 +68,30 @@ def setup_device():
         segment[3] = [i for i in range(2, 8)]  # d
         segment[4] = [i for i in range(6, 11)]  # e
         segment[5] = [i for i in range(10, 15)]   # f
-        segment[6] = [i for i in range(21, 27)] + [10] # g
+        segment[6] = [i for i in range(21, 27)] + [10]  # g
 
 
 def allOff():
-    """ Turn all the lights off
-    """
-    publish("allOff")
     for i in range(0, np.n):
         np[i] = (0, 0, 0)
     np.write()
 
 
+def time_check():
+    publish("time check")
+    ntptime.settime()
+    if (time.localtime()[3] - 5) % 24 >= 23:
+        publish("sleeping for 8hr")
+        time.sleep(60 * 60 * 8)
+
+
 def test_segments():
-    """ test segment setup
-    """
     publish("Test Segments")
     for i in range(0, 7):
         set_binary(pow(2, i))
         time.sleep_ms(100)
         set_binary(0)
 
-
-def test_digits():
-    """ Run through 0->9
-    """
-    publish("Test Digits")
-    for i in range(0, 10):
-        print(i)
-        set_char(str(i))
-        time.sleep_ms(750)
-        set_binary(0)
-        time.sleep_ms(250)
 
 def set_binary(b):
 
@@ -96,7 +102,7 @@ def set_binary(b):
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
-            np[i] = (10, 10, 10)
+            np[i] = (brightness, brightness, brightness)
         else:
             np[i] = (0, 0, 0)
 
@@ -127,7 +133,7 @@ def twinkle(t):
     publish("twinkle")
 
     starfield = []
-    for i in range(0, 10):
+    for i in range(0, 20):
         starfield.append(random_star())
 
     for i in range(0, t * 20):
@@ -149,6 +155,7 @@ def twinkle(t):
 
         np.write()
         time.sleep_ms(50)
+    allOff()
 
 
 def random_flake():
@@ -217,8 +224,7 @@ def binary_index_blink(t):
                 if b[x] == '1':
                     np[i] = (0, 255, 0)
         np.write()
-        print("blink x=" + str(x))
-        time.sleep_ms(10)
+        time.sleep_ms(20)
         allOff()
         time.sleep_ms(10)
 
@@ -238,28 +244,19 @@ def frangable_publish(topic, payload):
 
 
 def publish(message):
-    """ publish to topic containing device_id
-    """
-    print(message)
     frangable_publish("/strip/health/" + client_id, message)
 
 
 def gotMessage(topic, msg):
-    print(topic)
-    print(msg)
-
-    # Address single light via topc - disabled
-    # light = int(topic.decode("utf-8").split('/')[-1])
     s_msg = msg.decode("utf-8")
-
     print("Got message ", msg)
+
 
 setup_device()
 
 s = network.WLAN(network.STA_IF)
 while not s.isconnected():
-    # s.connect('ShArVa')
-    print("Network not connected - sleeping")
+    publish("Network not connected - sleeping")
     time.sleep(1)
 
 print(s.ifconfig())
@@ -267,26 +264,23 @@ print(s.ifconfig())
 connected = False
 while not connected:
     try:
-        print("Connecting")
         client.connect()
     except:
-        print("Connection Fail")
+        print(".")
         time.sleep(1)
     else:
         connected = True
-
-print("Connected")
 publish("alive")
 
-# client.subscribe(b"strip/anet")
 client.set_callback(gotMessage)
 client.subscribe(topic)
 
 allOff()
 
 while True:
+    time_check()
     # binary_index_blink(100)
     # snow(1000)
-    # twinkle(10)
+    twinkle(100)
     # test_digits()
-    test_segments()
+    # test_segments()
