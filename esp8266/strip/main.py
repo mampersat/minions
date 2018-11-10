@@ -31,7 +31,7 @@ pallet = [
     (255, 0, 0),  # red
     (0, 255, 0),  # green
     (255, 255, 0),  # yellow
-    (255, 140, 0),  # orange
+    (170, 255, 0),  # orange
      ]
 
 def setup_device():
@@ -158,6 +158,15 @@ def twinkle(t):
     allOff()
 
 
+def snake(t):
+    publish("snake")
+    for i in range(0, t):
+        for j in range(0, lights):
+            np[j] = pallet[i % len(pallet)]
+            np[(j-5) % lights] = (0, 0, 0)
+            np.write()
+
+
 def random_flake():
     """ Initialize a snow flake
     """
@@ -278,9 +287,10 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    time_check()
+    snake(5)
+    # time_check()
     # binary_index_blink(100)
     # snow(1000)
-    twinkle(100)
+    twinkle(5)
     # test_digits()
     # test_segments()
