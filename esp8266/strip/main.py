@@ -6,8 +6,9 @@ import ntptime
 import time
 import ubinascii
 import uos
-
 from umqtt.simple import MQTTClient
+
+motd = "veterans day 2018"
 
 pin = 4
 topic = 'leds'
@@ -28,10 +29,10 @@ client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
 pallet = [
-    (255, 0, 0),  # red
+    #(255, 0, 0),  # red
     (0, 255, 0),  # green
-    (255, 255, 0),  # yellow
-    (170, 255, 0),  # orange
+    #(255, 255, 0),  # yellow
+    #(170, 255, 0),  # orange
      ]
 
 def setup_device():
@@ -279,7 +280,7 @@ while not connected:
         time.sleep(1)
     else:
         connected = True
-publish("alive")
+publish("alive " + motd + ' ' + s.ifconfig()[0])
 
 client.set_callback(gotMessage)
 client.subscribe(topic)
@@ -287,7 +288,7 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    snake(5)
+    # snake(5)
     # time_check()
     # binary_index_blink(100)
     # snow(1000)
