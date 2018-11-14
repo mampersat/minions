@@ -29,11 +29,12 @@ client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
 pallet = [
-    #(255, 0, 0),  # red
+    # (255, 0, 0),  # red
     (0, 255, 0),  # green
-    #(255, 255, 0),  # yellow
-    #(170, 255, 0),  # orange
+    (255, 255, 0),  # yellow
+    (170, 255, 0),  # orange
      ]
+
 
 def setup_device():
     return
@@ -80,10 +81,14 @@ def allOff():
 
 def time_check():
     publish("time check")
-    ntptime.settime()
-    if (time.localtime()[3] - 5) % 24 >= 23:
-        publish("sleeping for 8hr")
-        time.sleep(60 * 60 * 8)
+
+    try:
+        ntptime.settime()
+        if (time.localtime()[3] - 5) % 24 >= 23:
+            publish("sleeping for 8hr")
+            time.sleep(60 * 60 * 8)
+    except:
+        print(".")
 
 
 def test_segments():
@@ -168,58 +173,6 @@ def snake(t):
             np.write()
 
 
-def random_flake():
-    """ Initialize a snow flake
-    """
-    flake = {}
-
-    # Either left or right side of window
-    if uos.urandom(1)[0] > 128:
-        flake['path'] = segment[1] + segment[2]
-    else:
-        flake['path'] = segment[5] + segment[4]
-
-    flake['pos'] = 0
-    return flake
-
-
-def snow(t):
-    """ using segments A B and F E, show snow falling
-    """
-    publish("snow")
-
-    storm = []
-    for i in range(0, 1):
-        storm.append(random_flake())
-
-    for i in range(0, t):
-        for flake in storm:
-            print(flake['path'])
-
-            pos = flake['pos']
-
-            pixel = flake['path'][pos]
-            print("pixel = off", pixel)
-
-            # clear prev pixel
-            np[pixel] = [0, 0, 0]
-
-            flake['pos'] += 1
-            pos = flake['pos']
-
-            if flake['pos'] >= len(flake['path']):
-                storm.remove(flake)
-                storm.append(random_flake())
-            else:
-                pixel = flake['path'][pos]
-                print("pixel ON= ", pixel)
-
-                np[pixel] = [25, 25, 25]
-
-        np.write()
-        time.sleep_ms(500)
-
-
 def binary_index_blink(t):
     publish("binary index blink")
     maxlen = math.ceil(math.log(lights, 2))
@@ -289,7 +242,7 @@ allOff()
 
 while True:
     # snake(5)
-    # time_check()
+    time_check()
     # binary_index_blink(100)
     # snow(1000)
     twinkle(5)
