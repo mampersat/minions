@@ -8,7 +8,7 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "veterans day 2018"
+motd = "2018-11-17 Suzy wants Yellow and Red"
 
 pin = 4
 topic = 'leds'
@@ -29,10 +29,12 @@ client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
 
 pallet = [
-    # (255, 0, 0),  # red
-    (0, 255, 0),  # green
-    (255, 255, 0),  # yellow
-    (170, 255, 0),  # orange
+    (255, 0, 0),      # red
+    # (0, 255, 0),      # green
+    (255, 255, 0),    # yellow
+    # (170, 255, 0),    # orange
+    # (0, 0, 255),      # blue
+    # (255, 255, 255),  # white
      ]
 
 
@@ -86,7 +88,9 @@ def time_check():
         ntptime.settime()
         if (time.localtime()[3] - 5) % 24 >= 23:
             publish("sleeping for 8hr")
-            time.sleep(60 * 60 * 8)
+            for h in range(0, 8):
+                print("sleep an hour")
+                time.sleep(60 * 60)
     except:
         print(".")
 
@@ -139,7 +143,7 @@ def twinkle(t):
     publish("twinkle")
 
     starfield = []
-    for i in range(0, 20):
+    for i in range(0, 30):
         starfield.append(random_star())
 
     for i in range(0, t * 20):
@@ -160,7 +164,7 @@ def twinkle(t):
                 starfield.append(random_star())
 
         np.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
     allOff()
 
 
@@ -211,8 +215,10 @@ def publish(message):
 
 
 def gotMessage(topic, msg):
-    s_msg = msg.decode("utf-8")
-    print("Got message ", msg)
+    # s_msg = msg.decode("utf-8")
+    publish("resetting in 1 second")
+    time.sleep(1)
+    machine.reset()
 
 
 setup_device()
@@ -245,6 +251,6 @@ while True:
     time_check()
     # binary_index_blink(100)
     # snow(1000)
-    twinkle(5)
+    twinkle(30)
     # test_digits()
     # test_segments()
