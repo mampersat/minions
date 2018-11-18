@@ -31,7 +31,7 @@ print("listening to ", broker, " for ", topic)
 pallet = [
     (255, 0, 0),      # red
     # (0, 255, 0),      # green
-    (255, 255, 0),    # yellow
+    (50, 155, 0),    # yellow
     # (170, 255, 0),    # orange
     # (0, 0, 255),      # blue
     # (255, 255, 255),  # white
@@ -168,13 +168,15 @@ def twinkle(t):
     allOff()
 
 
-def snake(t):
-    publish("snake")
-    for i in range(0, t):
-        for j in range(0, lights):
-            np[j] = pallet[i % len(pallet)]
-            np[(j-5) % lights] = (0, 0, 0)
-            np.write()
+def cycle_pallet(t):
+    publish("pallet complete")
+    c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
+    for i in range(0, t * 20):
+        client.check_msg()
+        for p in range(0, lights):
+            np[p] = c
+        np.write()
+    time.sleep(1)
 
 
 def binary_index_blink(t):
@@ -247,10 +249,10 @@ client.subscribe(topic)
 allOff()
 
 while True:
-    # snake(5)
     time_check()
+    cycle_pallet(1)
     # binary_index_blink(100)
     # snow(1000)
-    twinkle(30)
+    # twinkle(30)
     # test_digits()
     # test_segments()
