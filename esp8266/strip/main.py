@@ -10,7 +10,6 @@ from umqtt.simple import MQTTClient
 
 motd = "2018-11-17 Suzy wants Yellow and Red"
 
-pin = 4
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
@@ -21,7 +20,7 @@ for i in range(0, 7):
     segment[i] = [x for x in range(i * 21, (i+1)*21)]
 
 segment_map = [0] * lights
-np = neopixel.NeoPixel(machine.Pin(pin), lights)
+np = neopixel.NeoPixel(machine.Pin(4), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
 topic = 'leds/' + client_id
@@ -31,7 +30,7 @@ print("listening to ", broker, " for ", topic)
 pallet = [
     (255, 0, 0),      # red
     # (0, 255, 0),      # green
-    (50, 155, 0),    # yellow
+    (70, 105, 0),    # yellow
     # (170, 255, 0),    # orange
     # (0, 0, 255),      # blue
     # (255, 255, 255),  # white
@@ -171,12 +170,18 @@ def twinkle(t):
 def cycle_pallet(t):
     publish("pallet complete")
     c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
-    for i in range(0, t * 20):
-        client.check_msg()
-        for p in range(0, lights):
-            np[p] = c
-        np.write()
-    time.sleep(1)
+    d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
+
+    for j in range(0, t):
+            for on in range(j, lights + j, 3):
+                client.check_msg()
+                dim = (on - 1) % lights
+                off = (on - 2) % lights
+                np[on % lights] = c
+                np[dim] = d
+                np[off] = (0, 0, 0)
+            np.write()
+            # time.sleep(1)
 
 
 def binary_index_blink(t):
@@ -250,7 +255,7 @@ allOff()
 
 while True:
     time_check()
-    cycle_pallet(1)
+    cycle_pallet(10)
     # binary_index_blink(100)
     # snow(1000)
     # twinkle(30)
