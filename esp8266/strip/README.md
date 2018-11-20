@@ -5,7 +5,7 @@ sudo picocom /dev/ttyUSB0 -b115200
 import network
 w = network.WLAN(network.STA_IF)
 w.active(True)
-w.connect('ShArVa', 'end dirt people main zero')
+w.connect('ShArVa', 'pw-redacted')
 w.isconnected()
 
 import webrepl_setup
