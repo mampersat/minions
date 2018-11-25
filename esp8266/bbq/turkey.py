@@ -1,11 +1,15 @@
+"""
+turkey.py
+read the turkey temperature from mqtt bus and display on front of house
+"""
+
 import paho.mqtt.client as mqtt
 
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
 
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
+    # the esp8266 with the temperature probe in the turkey
     client.subscribe("/bbq/esp8266_7f35d500")
 
 
@@ -14,13 +18,14 @@ def on_message(client, userdata, msg):
     t = msg.payload.split('.')[0]
     i = int(t)
     s = str(i)
+
+    # construct commands to set 3 window lights to digits of temperature
     a = 'l' + s[0]
     b = 'l' + s[1]
     c = 'l' + s[2]
     mqttc.publish("leds/esp8266_5133d500", a)
     mqttc.publish("leds/esp8266_8f141200", b)
     mqttc.publish("leds/esp8266_8b0e1200", c)
-
 
 
 client = mqtt.Client()

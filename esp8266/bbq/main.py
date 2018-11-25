@@ -1,3 +1,8 @@
+"""
+main.py
+read temperature from ADC pin and publish to mqtt
+"""
+
 import machine
 import math
 import network
@@ -65,6 +70,11 @@ publish("alive " + motd + ' ' + s.ifconfig()[0])
 while True:
     v = adc.read()
     v_i = int(v)
+
+    # this 6.2 isn't a constant
+    # some calibration shows it is accurate around 165 freedom degrees
+    # which is our target for cooking a turkey
     t = v_i / 6.2
+
     publish(str(t))
     time.sleep_ms(250)
