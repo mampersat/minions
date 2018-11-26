@@ -41,57 +41,18 @@ pallet = [
     # (255, 255, 255),  # white
      ]
 
-
-def setup_device():
-    return
-    global lights, segment
-    if client_id == "esp8266_8b0e1200":
-        publish("Config 3x5 test device")
-        lights = 21
-        segment[0] = [i for i in range(2, 6)]    # a
-        segment[1] = [i for i in range(5, 9)]    # b
-        segment[2] = [i for i in range(17, 20)] + [8]  # c
-        segment[3] = [i for i in range(14, 18)]  # d
-        segment[4] = [i for i in range(11, 15)]  # e
-        segment[5] = [i for i in range(0, 3)] + [11]   # f
-        segment[6] = [i for i in range(8, 12)]  # g
-
-    if client_id == "esp8266_609a1100":
-        publish("Config window 1")
-        lights = 150
-        segment[0] = [i for i in range(22, 48)]    # a
-        segment[1] = [i for i in range(48, 71)]    # b
-        segment[2] = [i for i in range(71, 93)]  # c
-        segment[3] = [i for i in range(93, 120)]  # d
-        segment[4] = [i for i in range(120, 145)]  # e
-        segment[5] = [i for i in range(0, 22)]   # f
-        segment[6] = [i for i in range(145, 150)]  # g
-
-    if client_id == "esp8266_8f141200":
-        publish("Confic 4x8 test device")
-        lights = 24
-        segment[0] = [i for i in range(13, 18)]    # a
-        segment[1] = [i for i in range(17, 22)]    # b
-        segment[2] = [21] + [i for i in range(0, 3)]  # c
-        segment[3] = [i for i in range(2, 8)]  # d
-        segment[4] = [i for i in range(6, 11)]  # e
-        segment[5] = [i for i in range(10, 15)]   # f
-        segment[6] = [i for i in range(21, 27)] + [10]  # g
+char_segment_map = {
+    '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F, '4': 0x66, '5': 0x6D,
+    '6': 0x7D, '7': 0x07, '8': 0x7F, '9': 0x6F, 'A': 0x77, 'b': 0x7C,
+    'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71,
+    'N': 55, 'S': 109, 'U': 62, 'Z': 91, 'Y': 110,
+    'F': 113, 'L': 56, 'H': 118, 'D': 99}
 
 
 def allOff():
     for i in range(0, np.n):
         np[i] = (0, 0, 0)
     np.write()
-
-
-def time_check():
-    publish("time check")
-    client.check_msg()
-    try:
-        ntptime.settime()
-    except:
-        print(".")
 
 
 def test_segments():
@@ -121,15 +82,17 @@ def set_binary(b):
 
 def set_char(c):
     publish("set char: " + c)
-    m = {
-        '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F, '4': 0x66, '5': 0x6D,
-        '6': 0x7D, '7': 0x07, '8': 0x7F, '9': 0x6F, 'A': 0x77, 'b': 0x7C,
-        'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71,
-        'N': 55, 'S': 109, 'U': 62, 'Z': 91, 'Y': 110}
+    global char_segment_map
 
-    client.check_msg()
-    set_binary(m[c])
+    set_binary(char_segment_map[c])
     time.sleep(1)
+
+
+def cycle_char():
+    for c in char_segment_map:
+        print(c)
+        set_char(c)
+        time.sleep(1)
 
 
 def random_star():
@@ -178,6 +141,9 @@ def cycle_pallet(t):
 
     for j in range(0, t):
             for on in range(j, lights + j, 10):
+                c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
+                d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
+
                 client.check_msg()
                 dim = (on - 1) % lights
                 off = (on - 2) % lights
@@ -185,7 +151,7 @@ def cycle_pallet(t):
                 np[dim] = d
                 np[off] = (0, 0, 0)
             np.write()
-            time.sleep_ms(20)
+            time.sleep_ms(100)
 
 
 def binary_index_blink(t):
@@ -248,8 +214,6 @@ def gotMessage(topic, msg):
         display_char = ''
 
 
-setup_device()
-
 s = network.WLAN(network.STA_IF)
 while not s.isconnected():
     publish("Network not connected - sleeping")
@@ -274,10 +238,10 @@ client.subscribe("/strip/command/" + client_id)
 allOff()
 
 while True:
+    client.check_msg()
     if display_char == '':
         cycle_pallet(50)
         # binary_index_blink(100)
-        # snow(1000)
         # twinkle(30)
         # test_digits()
         # test_segments()
