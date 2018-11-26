@@ -9,6 +9,11 @@
 * [micropython](https://micropython.org/)
 * [mqtt](http://mqtt.org/)
 
+A seven segment prototype hooked to the esp8266
+<img src="prototype.jpg">
+
+Using 10baseT wire to connect indoor esp8266 to outdoor 2s2821b
+<img src="wireLEDend.jpg">
 
 Flash esp8266 with micropython
 ```
