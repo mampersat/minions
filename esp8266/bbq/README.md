@@ -4,7 +4,7 @@
 ## 2018 thanksgiving
 My iGrill device (blue tooth connected thermometer) failed the morning I wanted to smoke a turkey so I hooked the thermistor to an esp8266 ADC pin and got it reporting temperature over mqtt so I could monitor temperature without having to open the grill.
 
-I was also working on esp8266 controlled Xmas lights at the time so I had the temperature displayed on the front of the house.
+I was also working on [esp8266 controlled Xmas lights](https://github.com/mampersat/minions/tree/master/esp8266/strip) at the time so I had the temperature displayed on the front of the house.
 
 ## Device
 USB power pack with esp8366 wire tired to it next to my thermapen
@@ -15,6 +15,9 @@ Turkey + probes + grill + thermapen for calibration
 
 Trying to get an idea for how the probe responds to different temperatures. Ice water on the left, hot tap water on the right.
 <img src="calibration.jpg">
+
+Temperature 153.3 displayed on the xmass lights
+<img src="temp153.jpg">
 
 I did some more calibration with a pot of hot water on the stove top to see where the 165d target range would report.
 
