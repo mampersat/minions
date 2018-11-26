@@ -16,6 +16,9 @@ Turkey + probes + grill + thermapen for calibration
 Trying to get an idea for how the probe responds to different temperatures. Ice water on the left, hot tap water on the right.
 <img src="calibration.jpg">
 
+Temperature 153.3 displayed on the xmass lights
+<img src="temp153.jpg">
+
 I did some more calibration with a pot of hot water on the stove top to see where the 165d target range would report.
 
 Some rough calibration graphing
