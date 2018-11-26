@@ -7,7 +7,7 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "2018-11-19 Faster rotation"
+motd = "2018-11-25 Recusion avoidance"
 
 topic = 'leds'
 broker = 'jarvis'
@@ -34,10 +34,10 @@ print("listening to ", broker, " for ", topic)
 
 pallet = [
     (255, 0, 0),      # red
-    # (0, 255, 0),      # green
+    (0, 255, 0),      # green
     (70, 105, 0),    # yellow
-    # (170, 255, 0),    # orange
-    # (0, 0, 255),      # blue
+    (170, 255, 0),    # orange
+    (0, 0, 255),      # blue
     # (255, 255, 255),  # white
      ]
 
@@ -129,6 +129,7 @@ def set_char(c):
 
     client.check_msg()
     set_binary(m[c])
+    time.sleep(1)
 
 
 def random_star():
@@ -171,7 +172,7 @@ def twinkle(t):
 
 
 def cycle_pallet(t):
-    publish("pallet complete")
+    publish("spin pallet")
     c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
     d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
@@ -184,7 +185,7 @@ def cycle_pallet(t):
                 np[dim] = d
                 np[off] = (0, 0, 0)
             np.write()
-            # time.sleep(1)
+            time.sleep_ms(20)
 
 
 def binary_index_blink(t):
@@ -219,12 +220,12 @@ def frangable_publish(topic, payload):
         client.publish(topic, payload)
         print("Wrote", payload, " to ", topic)
     except:
-        print("failed to log, sleeping 1")
+        print("failed to log, sleeping - dropping")
         time.sleep(1)
-        try:
-            client.connect()
-        except:
-            print("failed to connect")
+        #try:
+        #    client.connect()
+        #except:
+        #    print("failed to connect")
 
 
 def publish(message):
@@ -268,7 +269,7 @@ while not connected:
 publish("alive " + motd + ' ' + s.ifconfig()[0])
 
 client.set_callback(gotMessage)
-client.subscribe(topic)
+client.subscribe("/strip/command/" + client_id)
 
 allOff()
 

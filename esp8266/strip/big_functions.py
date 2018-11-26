@@ -114,3 +114,55 @@ def test_digits():
         time.sleep_ms(750)
         set_binary(0)
         time.sleep_ms(250)
+
+
+def random_flake():
+    """ Initialize a snow flake
+    """
+    flake = {}
+
+    # Either left or right side of window
+    if uos.urandom(1)[0] > 128:
+        flake['path'] = segment[1] + segment[2]
+    else:
+        flake['path'] = segment[5] + segment[4]
+
+    flake['pos'] = 0
+    return flake
+
+
+def snow(t):
+    """ using segments A B and F E, show snow falling
+    """
+    publish("snow")
+
+    storm = []
+    for i in range(0, 1):
+        storm.append(random_flake())
+
+    for i in range(0, t):
+        for flake in storm:
+            print(flake['path'])
+
+            pos = flake['pos']
+
+            pixel = flake['path'][pos]
+            print("pixel = off", pixel)
+
+            # clear prev pixel
+            np[pixel] = [0, 0, 0]
+
+            flake['pos'] += 1
+            pos = flake['pos']
+
+            if flake['pos'] >= len(flake['path']):
+                storm.remove(flake)
+                storm.append(random_flake())
+            else:
+                pixel = flake['path'][pos]
+                print("pixel ON= ", pixel)
+
+                np[pixel] = [25, 25, 25]
+
+        np.write()
+        time.sleep_ms(500)
