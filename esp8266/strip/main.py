@@ -7,7 +7,7 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "2018-11-25 Recusion avoidance"
+motd = "2018-11-25 Recusion avoidance day two"
 
 topic = 'leds'
 broker = 'jarvis'
@@ -65,7 +65,6 @@ def test_segments():
 
 
 def set_binary(b):
-
     # map the segments to pixels
     for s in range(0, 7):
         for i in segment[s]:
@@ -73,7 +72,7 @@ def set_binary(b):
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
-            np[i] = (brightness, brightness, brightness)
+            np[i] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
         else:
             np[i] = (0, 0, 0)
 
@@ -85,7 +84,7 @@ def set_char(c):
     global char_segment_map
 
     set_binary(char_segment_map[c])
-    time.sleep(1)
+    # time.sleep(1)
 
 
 def cycle_char():
@@ -144,7 +143,8 @@ def cycle_pallet(t):
                 c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
                 d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
-                client.check_msg()
+                # this may cause recurion problems
+                # client.check_msg()
                 dim = (on - 1) % lights
                 off = (on - 2) % lights
                 np[on % lights] = c
@@ -177,7 +177,8 @@ def sleep():
     publish("Sleeping")
     allOff()
     while True:
-        client.check_msg()
+        # this may cause recursion problems
+        # client.check_msg()
         time.sleep(1)
 
 
@@ -186,8 +187,8 @@ def frangable_publish(topic, payload):
         client.publish(topic, payload)
         print("Wrote", payload, " to ", topic)
     except:
-        print("failed to log, sleeping - dropping")
         time.sleep(1)
+        print("failed to log, took a nap")
         #try:
         #    client.connect()
         #except:
@@ -240,7 +241,7 @@ allOff()
 while True:
     client.check_msg()
     if display_char == '':
-        cycle_pallet(50)
+        cycle_pallet(10)
         # binary_index_blink(100)
         # twinkle(30)
         # test_digits()

@@ -13,6 +13,17 @@ fleet['esp8266_7f35d500'] = "test 4x8          "
 last_message = {}
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
 
@@ -32,10 +43,18 @@ def display():
         name = fleet[client]
         p = last_message[m][0]
         t = last_message[m][1]
-        d = now - t
+        d = (now - t)
+        s = d.total_seconds()
+        color = ''
+        if (s < 1):
+            color = bcolors.OKGREEN
+        elif (s < 10):
+            color = bcolors.WARNING
+        else:
+            color = bcolors.FAIL
 
-        print("{}\t{}\t{}".format(name, p, d.total_seconds()))
-
+        print(color + "{}\t{}\t{}".format(name, p, d.total_seconds()) + bcolors.ENDC)
+        # print("{}\t{}\t{}".format(name, p, d.total_seconds()))
 
 def on_message(client, userdata, msg):
     global last_message
