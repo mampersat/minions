@@ -1,0 +1,6 @@
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_8f141200" -m 'lH'
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_8b0e1200" -m 'lO'
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_5133d500" -m 'lH'
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_51333700" -m 'lO'
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_609a1100" -m 's'
+mosquitto_pub -h 192.168.1.132 -t "/strip/command/esp8266_7f35d500" -m 's'

@@ -139,7 +139,7 @@ def cycle_pallet(t):
     d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
     for j in range(0, t):
-            for on in range(j, lights + j, 10):
+            for on in range(j, lights + j, 15):
                 c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
                 d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
@@ -151,7 +151,7 @@ def cycle_pallet(t):
                 np[dim] = d
                 np[off] = (0, 0, 0)
             np.write()
-            time.sleep_ms(100)
+            time.sleep_ms(200)
 
 
 def binary_index_blink(t):
@@ -178,7 +178,7 @@ def sleep():
     allOff()
     while True:
         # this may cause recursion problems
-        # client.check_msg()
+        client.check_msg()
         time.sleep(1)
 
 
@@ -241,7 +241,7 @@ allOff()
 while True:
     client.check_msg()
     if display_char == '':
-        cycle_pallet(10)
+        cycle_pallet(15)
         # binary_index_blink(100)
         # twinkle(30)
         # test_digits()
