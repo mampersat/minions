@@ -72,7 +72,8 @@ def set_binary(b):
 
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
-            np[i] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
+            # np[i] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
+            np[i] = (255, 255, 255)
         else:
             np[i] = (0, 0, 0)
 

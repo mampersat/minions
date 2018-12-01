@@ -24,6 +24,36 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def humanize(second_diff):
+    day_diff = int(second_diff/60/60/24)
+
+    if day_diff < 0:
+        return ''
+
+    if day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return "a minute ago"
+        if second_diff < 3600:
+            return str(second_diff / 60) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str(second_diff / 3600) + " hours ago"
+    if day_diff == 1:
+        return "Yesterday"
+    if day_diff < 7:
+        return str(day_diff) + " days ago"
+    if day_diff < 31:
+        return str(day_diff / 7) + " weeks ago"
+    if day_diff < 365:
+        return str(day_diff / 30) + " months ago"
+    return str(day_diff / 365) + " years ago"
+
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
 
@@ -46,22 +76,23 @@ def display():
         d = (now - t)
         s = d.total_seconds()
         color = ''
-        if (s < 1):
+        if (s < 5):
             color = bcolors.OKGREEN
-        elif (s < 10):
+        elif (s < 30):
             color = bcolors.WARNING
         else:
             color = bcolors.FAIL
 
-        print(color + "{}\t{}\t{}".format(name, p, d.total_seconds()) + bcolors.ENDC)
-        # print("{}\t{}\t{}".format(name, p, d.total_seconds()))
+        human = humanize(s)
+
+        # print(color + "{}\t{}\t{}".format(name, p, d.total_seconds()) + bcolors.ENDC)
+        print(color + "{}\t{}\t{}".format(name, p, human) + bcolors.ENDC)
+
 
 def on_message(client, userdata, msg):
     global last_message
     print(msg.topic+" "+str(msg.payload))
     last_message[msg.topic] = (msg.payload, datetime.datetime.now())
-
-    display()
 
 
 client = mqtt.Client()
@@ -72,3 +103,4 @@ client.connect("192.168.1.132")
 
 while True:
     client.loop()
+    display()
