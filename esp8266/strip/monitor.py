@@ -9,6 +9,7 @@ fleet['esp8266_51333700'] = "Nick west         "
 fleet['esp8266_5133d500'] = "Nick east         "
 fleet['esp8266_609a1100'] = "office window east"
 fleet['esp8266_7f35d500'] = "test 4x8          "
+fleet['esp8266_c1584a00'] = "tiny tester       "
 
 last_message = {}
 

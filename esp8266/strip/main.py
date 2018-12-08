@@ -7,12 +7,13 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "2018-11-25 Recusion avoidance day two"
+motd = "2018-12-03 ONE message check only"
 
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
 brightness = 255
+mode = "cycle"
 
 np = neopixel.NeoPixel(machine.Pin(4), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
@@ -58,7 +59,6 @@ def allOff():
 def test_segments():
     publish("Test Segments")
     for i in range(0, 7):
-        client.check_msg()
         set_binary(pow(2, i))
         time.sleep_ms(100)
         set_binary(0)
@@ -113,7 +113,6 @@ def twinkle(t):
         starfield.append(random_star())
 
     for i in range(0, t * 20):
-        client.check_msg()
         for star in starfield:
             r = star['color'][0]
             g = star['color'][1]
@@ -144,8 +143,6 @@ def cycle_pallet(t):
                 c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
                 d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
-                # this may cause recurion problems
-                # client.check_msg()
                 dim = (on - 1) % lights
                 off = (on - 2) % lights
                 np[on % lights] = c
@@ -174,15 +171,6 @@ def binary_index_blink(t):
         time.sleep_ms(10)
 
 
-def sleep():
-    publish("Sleeping")
-    allOff()
-    while True:
-        # this may cause recursion problems
-        client.check_msg()
-        time.sleep(1)
-
-
 def frangable_publish(topic, payload):
     try:
         client.publish(topic, payload)
@@ -201,7 +189,7 @@ def publish(message):
 
 
 def gotMessage(topic, msg):
-    global display_char
+    global display_char, mode
     s_msg = msg.decode("utf-8")
     publish("got msg: " + s_msg)
     if s_msg == "b":
@@ -209,11 +197,11 @@ def gotMessage(topic, msg):
         allOff()
         machine.reset()
     if s_msg == "s":
-        sleep()
+        mode = "sleep"
+    if s_msg == "cycle":
+        mode = "cycle"
     if s_msg[0] == 'l':
         display_char = s_msg[1]
-    if s_msg[0] == 'c':
-        display_char = ''
 
 
 s = network.WLAN(network.STA_IF)
@@ -241,11 +229,8 @@ allOff()
 
 while True:
     client.check_msg()
-    if display_char == '':
+    if mode == "sleep":
+        allOff()
+        time.sleep(1)
+    if mode == "cycle":
         cycle_pallet(15)
-        # binary_index_blink(100)
-        # twinkle(30)
-        # test_digits()
-        # test_segments()
-    else:
-        set_char(display_char)
