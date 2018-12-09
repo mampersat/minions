@@ -3,13 +3,13 @@ import os
 import paho.mqtt.client as mqtt
 
 fleet = {}
-fleet['esp8266_8f141200'] = "master east       "
-fleet['esp8266_8b0e1200'] = "master west       "
-fleet['esp8266_51333700'] = "Nick west         "
-fleet['esp8266_5133d500'] = "Nick east         "
-fleet['esp8266_609a1100'] = "office window east"
-fleet['esp8266_7f35d500'] = "test 4x8          "
-fleet['esp8266_c1584a00'] = "tiny tester       "
+fleet['esp8266_8f141200'] = 1
+fleet['esp8266_8b0e1200'] = 2
+fleet['esp8266_51333700'] = 4
+fleet['esp8266_5133d500'] = 5
+fleet['esp8266_609a1100'] = 6
+fleet['esp8266_7f35d500'] = "4x8"
+fleet['esp8266_c1584a00'] = "tester"
 
 last_message = {}
 

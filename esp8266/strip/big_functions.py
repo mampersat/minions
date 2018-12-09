@@ -166,3 +166,33 @@ def snow(t):
 
         np.write()
         time.sleep_ms(500)
+
+
+        def twinkle(t):
+            """ twikling star pattern
+            """
+            publish("twinkle")
+
+            starfield = []
+            for i in range(0, 30):
+                starfield.append(random_star())
+
+            for i in range(0, t * 20):
+                for star in starfield:
+                    r = star['color'][0]
+                    g = star['color'][1]
+                    b = star['color'][2]
+                    r = int(r * star['speed'])
+                    g = int(g * star['speed'])
+                    b = int(b * star['speed'])
+                    new_color = (r, g, b)
+                    star['color'] = new_color
+                    np[star['pixel']] = star['color']
+
+                    if (r+g+b) == 0:
+                        starfield.remove(star)
+                        starfield.append(random_star())
+
+                np.write()
+                time.sleep_ms(100)
+            allOff()

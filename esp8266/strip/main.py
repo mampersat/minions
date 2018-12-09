@@ -2,23 +2,38 @@ import machine
 import math
 import neopixel
 import network
+import ntptime
 import time
 import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "2018-12-03 ONE message check only"
+motd = "2018-12-09 ho ho ho"
 
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
 brightness = 255
-mode = "cycle"
+mode = "ho"
 
 np = neopixel.NeoPixel(machine.Pin(4), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
 topic = 'leds/' + client_id
+
+fleet = {}
+fleet['esp8266_8f141200'] = "H H HHH " #  1
+fleet['esp8266_8b0e1200'] = "O O OOO " #  2
+fleet['esp8266_51333700'] = "H H HHH " #  4
+fleet['esp8266_5133d500'] = "O O OOO " #  5
+fleet['esp8266_609a1100'] = "        " #  6
+fleet['esp8266_7f35d500'] = "H H HHH " #  5x8
+fleet['esp8266_c1584a00'] = "H H HHH " #  3x5
+
+letters = "        "
+if client_id in fleet:
+    letters = fleet[client_id]
+    print("unknown device :", client_id)
 
 segment = [[0]] * 7
 for i in range(0, 7):
@@ -47,7 +62,8 @@ char_segment_map = {
     '6': 0x7D, '7': 0x07, '8': 0x7F, '9': 0x6F, 'A': 0x77, 'b': 0x7C,
     'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71,
     'N': 55, 'S': 109, 'U': 62, 'Z': 91, 'Y': 110,
-    'F': 113, 'L': 56, 'H': 118, 'D': 99}
+    'F': 113, 'L': 56, 'H': 118, 'D': 99,
+    'O': 0x3F, ' ': 0}
 
 
 def allOff():
@@ -81,11 +97,10 @@ def set_binary(b):
 
 
 def set_char(c):
-    publish("set char: " + c)
+    # publish("set char: " + c)
     global char_segment_map
-
-    set_binary(char_segment_map[c])
-    # time.sleep(1)
+    if c in char_segment_map:
+        set_binary(char_segment_map[c])
 
 
 def cycle_char():
@@ -93,44 +108,6 @@ def cycle_char():
         print(c)
         set_char(c)
         time.sleep(1)
-
-
-def random_star():
-    star = {}
-    star['pixel'] = int((lights-1) * uos.urandom(1)[0] / 255)
-    star['color'] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
-    star['speed'] = uos.urandom(1)[0] / 256
-    return star
-
-
-def twinkle(t):
-    """ twikling star pattern
-    """
-    publish("twinkle")
-
-    starfield = []
-    for i in range(0, 30):
-        starfield.append(random_star())
-
-    for i in range(0, t * 20):
-        for star in starfield:
-            r = star['color'][0]
-            g = star['color'][1]
-            b = star['color'][2]
-            r = int(r * star['speed'])
-            g = int(g * star['speed'])
-            b = int(b * star['speed'])
-            new_color = (r, g, b)
-            star['color'] = new_color
-            np[star['pixel']] = star['color']
-
-            if (r+g+b) == 0:
-                starfield.remove(star)
-                starfield.append(random_star())
-
-        np.write()
-        time.sleep_ms(100)
-    allOff()
 
 
 def cycle_pallet(t):
@@ -150,6 +127,24 @@ def cycle_pallet(t):
                 np[off] = (0, 0, 0)
             np.write()
             time.sleep_ms(200)
+
+
+def ho(t):
+    publish("ho")
+    try:
+        print("ntp try")
+        ntptime.settime()
+    except:
+        publish("ntp fail")
+
+    for j in range(0,t):
+
+        global letters
+        d = machine.RTC().datetime()
+        ms = d[7] + d[6] * 1000
+        i = int(ms / 500) % len(letters)
+        set_char(letters[i])
+        time.sleep_ms(10)
 
 
 def binary_index_blink(t):
@@ -200,9 +195,8 @@ def gotMessage(topic, msg):
         mode = "sleep"
     if s_msg == "cycle":
         mode = "cycle"
-    if s_msg[0] == 'l':
-        display_char = s_msg[1]
-
+    if s_msg == "ho":
+        mode = "ho"
 
 s = network.WLAN(network.STA_IF)
 while not s.isconnected():
@@ -225,6 +219,16 @@ publish("alive " + motd + ' ' + s.ifconfig()[0])
 client.set_callback(gotMessage)
 client.subscribe("/strip/command/" + client_id)
 
+ntp_sync = False
+while not ntp_sync:
+    try:
+        print("NTP time sync")
+        ntptime.settime()
+        ntp_sync = True
+    except:
+        print("NTP fail")
+
+
 allOff()
 
 while True:
@@ -234,3 +238,5 @@ while True:
         time.sleep(1)
     if mode == "cycle":
         cycle_pallet(15)
+    if mode == "ho":
+        ho(100)
