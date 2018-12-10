@@ -24,8 +24,8 @@ topic = 'leds/' + client_id
 fleet = {}
 fleet['esp8266_8f141200'] = "H H HHH " #  1
 fleet['esp8266_8b0e1200'] = "O O OOO " #  2
-fleet['esp8266_51333700'] = "H H HHH " #  4
-fleet['esp8266_5133d500'] = "O O OOO " #  5
+fleet['esp8266_5133d500'] = "H H HHH " #  4
+fleet['esp8266_51333700'] = "O O OOO " #  5
 fleet['esp8266_609a1100'] = "        " #  6
 fleet['esp8266_7f35d500'] = "H H HHH " #  5x8
 fleet['esp8266_c1584a00'] = "H H HHH " #  3x5
@@ -142,7 +142,7 @@ def ho(t):
         global letters
         d = machine.RTC().datetime()
         ms = d[7] + d[6] * 1000
-        i = int(ms / 500) % len(letters)
+        i = int(ms / 750) % len(letters)
         set_char(letters[i])
         time.sleep_ms(10)
 
