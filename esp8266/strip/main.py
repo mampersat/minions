@@ -140,6 +140,7 @@ def ho(t):
     publish("ho")
     try:
         print("ntp try")
+        ntptime.host = "192.168.1.126"
         ntptime.settime()
     except:
         publish("ntp fail")
