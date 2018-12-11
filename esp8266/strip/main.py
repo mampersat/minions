@@ -8,7 +8,7 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "12-09:2"
+motd = "12-11:1"
 
 topic = 'leds'
 broker = 'jarvis'
