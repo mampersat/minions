@@ -8,8 +8,8 @@ fleet['esp8266_8b0e1200'] = 2
 fleet['esp8266_51333700'] = 4
 fleet['esp8266_5133d500'] = 5
 fleet['esp8266_609a1100'] = 6
-fleet['esp8266_7f35d500'] = "4x8"
-fleet['esp8266_c1584a00'] = "tester"
+fleet['esp8266_7f35d500'] = "tester"
+fleet['esp8266_c1584a00'] = "3x5"
 
 last_message = {}
 

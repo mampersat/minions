@@ -8,13 +8,13 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "2018-12-09 ho ho ho"
+motd = "12-09:2"
 
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
 brightness = 255
-mode = "ho"
+mode = "cycle"
 
 np = neopixel.NeoPixel(machine.Pin(4), lights)
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
@@ -116,7 +116,7 @@ def cycle_pallet(t):
     d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
     for j in range(0, t):
-            for on in range(j, lights + j, 15):
+            for on in range(j, lights + j, 44):
                 c = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
                 d = (int(c[0] / 5), int(c[1] / 5), int(c[2] / 5))
 
@@ -126,8 +126,15 @@ def cycle_pallet(t):
                 np[dim] = d
                 np[off] = (0, 0, 0)
             np.write()
-            time.sleep_ms(200)
+            time.sleep_ms(300)
 
+def test(t):
+    publish("test 1.3")
+    for i in range(0, lights, 3):
+        np[i] = (100,100,100)
+        np[(i-3) % lights] = (0,0,0)
+        np.write()
+        time.sleep_ms(100)
 
 def ho(t):
     publish("ho")
@@ -180,7 +187,7 @@ def frangable_publish(topic, payload):
 
 
 def publish(message):
-    frangable_publish("/strip/health/" + client_id, message)
+    frangable_publish("/strip/health/" + client_id, motd + ":" + message)
 
 
 def gotMessage(topic, msg):
@@ -197,6 +204,7 @@ def gotMessage(topic, msg):
         mode = "cycle"
     if s_msg == "ho":
         mode = "ho"
+
 
 s = network.WLAN(network.STA_IF)
 while not s.isconnected():
@@ -240,3 +248,5 @@ while True:
         cycle_pallet(15)
     if mode == "ho":
         ho(100)
+    if mode == "test":
+        test(1)
