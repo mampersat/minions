@@ -14,9 +14,12 @@ topic = 'leds'
 broker = 'jarvis'
 lights = 150
 brightness = 255
-mode = "cycle"
+mode = "ho"
+
 
 np = neopixel.NeoPixel(machine.Pin(4), lights)
+nps = {}
+
 client_id = 'esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 print("client_id = "+client_id)
 topic = 'leds/' + client_id
@@ -29,11 +32,6 @@ fleet['esp8266_51333700'] = "O O OOO " #  5
 fleet['esp8266_609a1100'] = "        " #  6
 fleet['esp8266_7f35d500'] = "H H HHH " #  5x8
 fleet['esp8266_c1584a00'] = "H H HHH " #  3x5
-
-letters = "        "
-if client_id in fleet:
-    letters = fleet[client_id]
-    print("unknown device :", client_id)
 
 segment = [[0]] * 7
 for i in range(0, 7):
@@ -66,6 +64,29 @@ char_segment_map = {
     'O': 0x3F, ' ': 0}
 
 
+def ntp2time():
+    NTP_QUERY = bytearray(48)
+    NTP_QUERY[0] = 0x1b
+    addr = socket.getaddrinfo(host, 123)[0][-1]
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(1)
+    res = s.sendto(NTP_QUERY, addr)
+    msg = s.recv(48)
+    s.close()
+    val = struct.unpack("!I", msg[40:44])[0]
+    return val - NTP_DELTA
+
+# There's currently no timezone support in MicroPython, so
+# utime.localtime() will return UTC time (as if it was .gmtime())
+def ntp2settime():
+    t = time()
+    import machine
+    import utime
+    tm = utime.localtime(t)
+    tm = tm[0:3] + (0,) + tm[3:6] + (0,)
+    machine.RTC().datetime(tm)
+
+
 def allOff():
     for i in range(0, np.n):
         np[i] = (0, 0, 0)
@@ -80,7 +101,7 @@ def test_segments():
         set_binary(0)
 
 
-def set_binary(b):
+def set_binary(b, neo = np):
     # map the segments to pixels
     for s in range(0, 7):
         for i in segment[s]:
@@ -89,18 +110,18 @@ def set_binary(b):
     for i in range(0, len(segment_map)):
         if (b & segment_map[i]):
             # np[i] = pallet[int(len(pallet) * uos.urandom(1)[0] / 256)]
-            np[i] = (255, 255, 255)
+            neo[i] = (255, 255, 255)
         else:
-            np[i] = (0, 0, 0)
+            neo[i] = (0, 0, 0)
 
     np.write()
 
 
-def set_char(c):
+def set_char(c, neo = np):
     # publish("set char: " + c)
     global char_segment_map
     if c in char_segment_map:
-        set_binary(char_segment_map[c])
+        set_binary(char_segment_map[c], neo)
 
 
 def cycle_char():
@@ -141,17 +162,21 @@ def ho(t):
     try:
         print("ntp try")
         ntptime.host = "192.168.1.126"
-        ntptime.settime()
+        ntp2settime()
     except:
-        publish("ntp fail")
+        print("ntp fail")
 
+    last_i = 0
     for j in range(0,t):
+        global ntp_sync
 
-        global letters
         d = machine.RTC().datetime()
         ms = d[7] + d[6] * 1000
         i = int(ms / 750) % len(letters)
-        set_char(letters[i])
+        if i != last_i:
+            print(ms , "\t" , i)
+            nps[i].write()
+            last_i = i
         time.sleep_ms(10)
 
 
@@ -225,6 +250,14 @@ while not connected:
         connected = True
 publish("alive " + motd + ' ' + s.ifconfig()[0])
 
+letters = "        "
+if client_id in fleet:
+    letters = fleet[client_id]
+
+for i in range(0, len(letters)):
+    nps[i] = neopixel.NeoPixel(machine.Pin(4), lights)
+    set_char(letters[i], nps[i])
+
 client.set_callback(gotMessage)
 client.subscribe("/strip/command/" + client_id)
 
@@ -248,6 +281,6 @@ while True:
     if mode == "cycle":
         cycle_pallet(15)
     if mode == "ho":
-        ho(100)
+        ho(1000)
     if mode == "test":
         test(1)
