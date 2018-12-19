@@ -8,7 +8,7 @@ import ubinascii
 import uos
 from umqtt.simple import MQTTClient
 
-motd = "12-11:1"
+motd = "12-19:2"
 
 topic = 'leds'
 broker = 'jarvis'
@@ -25,13 +25,13 @@ print("client_id = "+client_id)
 topic = 'leds/' + client_id
 
 fleet = {}
-fleet['esp8266_8f141200'] = "H H HHH " #  1
-fleet['esp8266_8b0e1200'] = "O O OOO " #  2
-fleet['esp8266_5133d500'] = "H H HHH " #  4
-fleet['esp8266_51333700'] = "O O OOO " #  5
-fleet['esp8266_609a1100'] = "        " #  6
-fleet['esp8266_7f35d500'] = "H H HHH " #  5x8
-fleet['esp8266_c1584a00'] = "H H HHH " #  3x5
+fleet['esp8266_8f141200'] = "H H HHH  0 D L " #  1
+fleet['esp8266_8b0e1200'] = "O O OOO  0 A E " #  2
+fleet['esp8266_5133d500'] = "H H HHH  0 Y F " #  4
+fleet['esp8266_51333700'] = "O O OOO  6 S T " #  5
+fleet['esp8266_609a1100'] = "         0" #  6
+fleet['esp8266_7f35d500'] = "H H HHH  0" #  5x8
+fleet['esp8266_c1584a00'] = "H H HHH  0"  #  3x5
 
 segment = [[0]] * 7
 for i in range(0, 7):
@@ -61,7 +61,7 @@ char_segment_map = {
     'C': 0x39, 'd': 0x5E, 'E': 0x79, 'F': 0x71,
     'N': 55, 'S': 109, 'U': 62, 'Z': 91, 'Y': 110,
     'F': 113, 'L': 56, 'H': 118, 'D': 99,
-    'O': 0x3F, ' ': 0}
+    'O': 0x3F, 'T' : 120, ' ': 0}
 
 
 def ntp2time():
@@ -79,7 +79,7 @@ def ntp2time():
 # There's currently no timezone support in MicroPython, so
 # utime.localtime() will return UTC time (as if it was .gmtime())
 def ntp2settime():
-    t = time()
+    t = ntp2time()
     import machine
     import utime
     tm = utime.localtime(t)
