@@ -3,12 +3,14 @@ import math
 import neopixel
 import network
 import ntptime
+import socket
 import time
 import ubinascii
 import uos
+import ustruct as struct
 from umqtt.simple import MQTTClient
 
-motd = "12-19:2"
+motd = "12-20:1"
 
 topic = 'leds'
 broker = 'jarvis'
@@ -25,13 +27,13 @@ print("client_id = "+client_id)
 topic = 'leds/' + client_id
 
 fleet = {}
-fleet['esp8266_8f141200'] = "H H HHH  0 D L " #  1
-fleet['esp8266_8b0e1200'] = "O O OOO  0 A E " #  2
-fleet['esp8266_5133d500'] = "H H HHH  0 Y F " #  4
-fleet['esp8266_51333700'] = "O O OOO  6 S T " #  5
-fleet['esp8266_609a1100'] = "         0" #  6
-fleet['esp8266_7f35d500'] = "H H HHH  0" #  5x8
-fleet['esp8266_c1584a00'] = "H H HHH  0"  #  3x5
+fleet['esp8266_8f141200'] = "H H HHH    d L " #  1
+fleet['esp8266_8b0e1200'] = "O O OOO    A E " #  2
+fleet['esp8266_5133d500'] = "H H HHH    Y F " #  4
+fleet['esp8266_51333700'] = "O O OOO  5 S T " #  5
+fleet['esp8266_609a1100'] = "               " #  6
+fleet['esp8266_7f35d500'] = "H H HHH  0     " #  5x8
+fleet['esp8266_c1584a00'] = "8 8 8 8 8 8 8 8"  #  3x5
 
 segment = [[0]] * 7
 for i in range(0, 7):
@@ -41,7 +43,7 @@ for i in range(0, 7):
         j = (5, 4, 3, 2, 1, 6, 0)[i]
     segment[i] = [x for x in range(j * 21, (j+1)*21)]
 segment_map = [0] * lights
-display_char = ''
+display_char = last_display_char = 0
 
 client = MQTTClient(topic, broker)
 print("listening to ", broker, " for ", topic)
@@ -62,29 +64,6 @@ char_segment_map = {
     'N': 55, 'S': 109, 'U': 62, 'Z': 91, 'Y': 110,
     'F': 113, 'L': 56, 'H': 118, 'D': 99,
     'O': 0x3F, 'T' : 120, ' ': 0}
-
-
-def ntp2time():
-    NTP_QUERY = bytearray(48)
-    NTP_QUERY[0] = 0x1b
-    addr = socket.getaddrinfo(host, 123)[0][-1]
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.settimeout(1)
-    res = s.sendto(NTP_QUERY, addr)
-    msg = s.recv(48)
-    s.close()
-    val = struct.unpack("!I", msg[40:44])[0]
-    return val - NTP_DELTA
-
-# There's currently no timezone support in MicroPython, so
-# utime.localtime() will return UTC time (as if it was .gmtime())
-def ntp2settime():
-    t = ntp2time()
-    import machine
-    import utime
-    tm = utime.localtime(t)
-    tm = tm[0:3] + (0,) + tm[3:6] + (0,)
-    machine.RTC().datetime(tm)
 
 
 def allOff():
@@ -157,27 +136,15 @@ def test(t):
         np.write()
         time.sleep_ms(100)
 
-def ho(t):
-    publish("ho")
-    try:
-        print("ntp try")
-        ntptime.host = "192.168.1.126"
-        ntp2settime()
-    except:
-        print("ntp fail")
+def ho():
+    global display_char, last_display_char
 
-    last_i = 0
-    for j in range(0,t):
-        global ntp_sync
+    if display_char != last_display_char:
+        nps[display_char % len(nps)].write()
+        last_display_char = display_char
+        publish("ho " + str(display_char))
 
-        d = machine.RTC().datetime()
-        ms = d[7] + d[6] * 1000
-        i = int(ms / 750) % len(letters)
-        if i != last_i:
-            print(ms , "\t" , i)
-            nps[i].write()
-            last_i = i
-        time.sleep_ms(10)
+    time.sleep_ms(100)
 
 
 def binary_index_blink(t):
@@ -230,6 +197,8 @@ def gotMessage(topic, msg):
         mode = "cycle"
     if s_msg == "ho":
         mode = "ho"
+    if s_msg[0] == "m":
+        display_char = int(msg[1:])
 
 
 s = network.WLAN(network.STA_IF)
@@ -281,6 +250,6 @@ while True:
     if mode == "cycle":
         cycle_pallet(15)
     if mode == "ho":
-        ho(1000)
+        ho()
     if mode == "test":
         test(1)
