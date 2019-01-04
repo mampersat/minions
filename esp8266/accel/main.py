@@ -1,6 +1,9 @@
 """ Furnace vibration minion
 
 Measure accelerometer movement and log time the furnace is on
+
+Accelerometer = https://learn.adafruit.com/adafruit-mma8451-accelerometer-breakout/overview
+
 """
 
 import machine
