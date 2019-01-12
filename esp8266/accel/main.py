@@ -128,3 +128,4 @@ while True:
             frangable_publish("homeassistant/sensor/sensorFurnaceT/state", bytes(str(data), 'utf-8'))
 
         recording = False
+

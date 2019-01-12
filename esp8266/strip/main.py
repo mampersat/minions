@@ -10,7 +10,7 @@ import uos
 import ustruct as struct
 from umqtt.simple import MQTTClient
 
-motd = "12-20:1"
+motd = "12-21:2"
 
 topic = 'leds'
 broker = 'jarvis'
@@ -27,12 +27,12 @@ print("client_id = "+client_id)
 topic = 'leds/' + client_id
 
 fleet = {}
-fleet['esp8266_8f141200'] = "H H HHH    d L " #  1
-fleet['esp8266_8b0e1200'] = "O O OOO    A E " #  2
-fleet['esp8266_5133d500'] = "H H HHH    Y F " #  4
-fleet['esp8266_51333700'] = "O O OOO  5 S T " #  5
-fleet['esp8266_609a1100'] = "               " #  6
-fleet['esp8266_7f35d500'] = "H H HHH  0     " #  5x8
+fleet['esp8266_8f141200'] = "2 H HHH    d L " #  1
+fleet['esp8266_8b0e1200'] = "0 O OOO  1 A E " #  2
+fleet['esp8266_5133d500'] = "1 H HHH    Y F " #  4
+fleet['esp8266_51333700'] = "8 O OOO      T " #  5
+fleet['esp8266_609a1100'] = "8               " #  6
+fleet['esp8266_7f35d500'] = "8 8 8 8 8 8 8 8" #  5x8
 fleet['esp8266_c1584a00'] = "8 8 8 8 8 8 8 8"  #  3x5
 
 segment = [[0]] * 7
@@ -144,7 +144,7 @@ def ho():
         last_display_char = display_char
         publish("ho " + str(display_char))
 
-    time.sleep_ms(100)
+    # time.sleep_ms(100)
 
 
 def binary_index_blink(t):
@@ -229,16 +229,6 @@ for i in range(0, len(letters)):
 
 client.set_callback(gotMessage)
 client.subscribe("/strip/command/" + client_id)
-
-ntp_sync = False
-while not ntp_sync:
-    try:
-        print("NTP time sync")
-        ntptime.settime()
-        ntp_sync = True
-    except:
-        print("NTP fail")
-
 
 allOff()
 

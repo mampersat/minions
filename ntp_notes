@@ -1,0 +1,42 @@
+import socket
+import ustruct as struct
+NTP_DELTA = 315567360
+NTP_QUERY = bytearray(48)
+NTP_QUERY[0] = 0x1b
+host = "192.168.1.126"
+addr = socket.getaddrinfo(host, 123)[0][-1]
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.settimeout(1)
+
+
+t0 = utime.time()
+res = s.sendto(NTP_QUERY, addr)
+msg = s.recv(48)
+s.close()
+t3 = utime.time()
+
+
+val = struct.unpack("!I", msg[40:44])[0]
+t1 = val - 3155673600
+val = struct.unpack("!I", msg[32:36])[0]
+t2 = val - 3155673600
+(t1 - t0) + (t2 - t3) /2
+tm = utime.localtime(t1)
+tm = tm[0:3] + (0,) + tm[3:6] + (0,)
+
+machine.RTC().datetime(tm)
+
+utime.localtime()
+
+
+
+t = val - NTP_DELTA
+
+import machine
+import utime
+tm = utime.localtime(t)
+
+
+curl -s https://updates.signal.org/desktop/apt/keys.asc | sudo apt-key add -
+echo "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main" | sudo tee -a /etc/apt/sources.list.d/signal-xenial.list
+sudo apt update && sudo apt install signal-desktop

@@ -74,7 +74,7 @@ while True:
     # this 6.2 isn't a constant
     # some calibration shows it is accurate around 165 freedom degrees
     # which is our target for cooking a turkey
-    t = v_i / 6.2
+    #t = v_i / 6.2
 
-    publish(str(t))
+    publish(str(v_i))
     time.sleep_ms(250)
