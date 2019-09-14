@@ -1,15 +1,26 @@
+#!/usr/bin/env python
+
+""" monitor.py
+listen on mqtt and represent messages from light strips
+Highlight heartbeats
+"""
+
 import datetime
 import os
 import paho.mqtt.client as mqtt
 
+# Map to current deployments
 fleet = {}
 fleet['esp8266_8f141200'] = 1
 fleet['esp8266_8b0e1200'] = 2
-fleet['esp8266_51333700'] = 4
+fleet['esp8266_51333700'] = "desk window"
 fleet['esp8266_5133d500'] = 5
-fleet['esp8266_609a1100'] = 6
+fleet['esp8266_609a1100'] = "breadboard"
 fleet['esp8266_7f35d500'] = "tester"
 fleet['esp8266_c1584a00'] = "3x5"
+fleet['esp8266_22584a00'] = "Test Block"
+
+
 
 last_message = {}
 
@@ -35,15 +46,15 @@ def humanize(second_diff):
         if second_diff < 10:
             return "just now"
         if second_diff < 60:
-            return str(second_diff) + " seconds ago"
+            return str(int(second_diff)) + " seconds ago"
         if second_diff < 120:
             return "a minute ago"
         if second_diff < 3600:
-            return str(second_diff / 60) + " minutes ago"
+            return str(int(second_diff / 60)) + " minutes ago"
         if second_diff < 7200:
             return "an hour ago"
         if second_diff < 86400:
-            return str(second_diff / 3600) + " hours ago"
+            return str(int(second_diff / 3600)) + " hours ago"
     if day_diff == 1:
         return "Yesterday"
     if day_diff < 7:
@@ -66,20 +77,25 @@ def on_connect(client, userdata, flags, rc):
 def display():
     os.system('cls' if os.name == 'nt' else 'clear')
     now = datetime.datetime.now()
+    
+    print("Time: {}".format(now))
 
     for m in last_message:
         # print m
         client = m.split('/')[3]
         # print client
-        name = fleet[client]
+        if client in fleet:
+            name = fleet[client]
+        else:
+            name = client
         p = last_message[m][0]
         t = last_message[m][1]
         d = (now - t)
         s = d.total_seconds()
         color = ''
-        if (s < 5):
+        if (s < 30):
             color = bcolors.OKGREEN
-        elif (s < 30):
+        elif (s < 120):
             color = bcolors.WARNING
         else:
             color = bcolors.FAIL
@@ -92,7 +108,7 @@ def display():
 
 def on_message(client, userdata, msg):
     global last_message
-    print(msg.topic+" "+str(msg.payload))
+    # print(msg.topic+" "+str(msg.payload))
     last_message[msg.topic] = (msg.payload, datetime.datetime.now())
 
 
@@ -100,7 +116,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("192.168.1.132")
+client.connect("jarvis")
 
 while True:
     client.loop()

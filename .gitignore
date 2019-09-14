@@ -1,2 +1,6 @@
 #python bytecode
 *.pyc
+
+#secrets
+*SECRETS*
+

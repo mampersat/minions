@@ -15,7 +15,7 @@ pin = 4
 topic = 'leds'
 broker = 'jarvis'
 client = MQTTClient('leds', broker)
-lights = 39
+lights = 8
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
 
@@ -84,7 +84,7 @@ def night_rider_2():
         for p in range(0, np.n):
 
             # this controls speed - higher is faster
-            f = t * 3.2
+            f = t * 1.5
 
             v1 = math.cos(f / periods + p/np_div) - 0.7
             v1 = max(0, v1)
@@ -241,10 +241,10 @@ start main loop
 
 allOff()
 # startUpAllOn()
-# night_rider_2()
+night_rider_2()
 # bin_walk()
 # bin_walk_3()
-hour_glass()
+# hour_glass()
 
 client.set_callback(gotMessage)
 
