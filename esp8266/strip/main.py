@@ -6,13 +6,13 @@ import time
 import ubinascii
 import uos # random numbers
 import utime
-# import config
+import config
 
 pin = 14
 topic = 'leds'
 broker = 'jarvis'
 lights = 150
-level = 100
+level = 10
 mode = "ho"
 
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
@@ -25,21 +25,6 @@ pallet = [
     (30, 5, 0),    # orange
 ]
 
-strip_tester = [
-    [2, 1, 0, 21, 20, 19, 17],
-    [6, 8, 9, 10, 11, 12, 13]
-]
-
-strip = [[],[]]
-for i in range(49, 93):
-    strip[0].append(i)
-
-for i in range(22, 2, -1):
-    strip[1].append(i)
-
-for i in range(143,  120, -1):
-    strip[1].append(i)
-    
 def random(i):
     if i:
         return int(uos.urandom(1)[0]/256 * i)
@@ -77,7 +62,7 @@ def binary_index_blink():
 
 def new_star(star = {}):
     star["pos"] = 0
-    star["strip"] = strip[random(2) -1]
+    star["strip"] = config.strip[random(2) -1]
     star["color"] = pallet[random(len(pallet)-1)]
     star["speed"] = random(10)/5 + 0.25
 
