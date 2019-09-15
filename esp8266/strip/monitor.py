@@ -11,8 +11,8 @@ import paho.mqtt.client as mqtt
 
 # Map to current deployments
 fleet = {}
-fleet['esp8266_8f141200'] = 1
-fleet['esp8266_8b0e1200'] = 2
+fleet['esp8266_8f141200'] = "Master East"
+fleet['esp8266_8b0e1200'] = "Master West"
 fleet['esp8266_51333700'] = "desk window"
 fleet['esp8266_5133d500'] = 5
 fleet['esp8266_609a1100'] = "breadboard"
