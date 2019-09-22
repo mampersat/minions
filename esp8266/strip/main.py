@@ -2,6 +2,7 @@ import machine
 import math
 import neopixel
 import network
+import os
 import time
 import ubinascii
 import uos  # random numbers
@@ -14,7 +15,6 @@ topic = 'leds'
 broker = 'jarvis'
 lights = 150
 level = 10
-mode = "ho"
 
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
@@ -40,9 +40,6 @@ def random(i=1):
 def keep_running():
     client.check_msg()
     if utime.ticks_ms() < 100000:  # about 1m
-    # if utime.ticks_ms() < 500000:  # about 300s
-        #print("listening")
-        #print("check = ", client.check_msg() )
         return True
     else:
         publish("reset")
@@ -53,13 +50,12 @@ def keep_running():
 
 
 """
-                  _                       _    _                   
-                 (_)                     / |_ (_)                  
- ,--.   _ .--.   __   _ .--..--.   ,--. `| |-'__   .--.   _ .--.   
-`'_\ : [ `.-. | [  | [ `.-. .-. | `'_\ : | | [  |/ .'`\ \[ `.-. |  
-// | |, | | | |  | |  | | | | | | // | |,| |, | || \__. | | | | |  
-\'-;__/[___||__][___][___||__||__]\'-;__/\__/[___]'.__.' [___||__] 
-"""                                                                   
+    ___          _                 __  _           
+   /   |  ____  (_)___ ___  ____ _/ /_(_)___  ____ 
+  / /| | / __ \/ / __ `__ \/ __ `/ __/ / __ \/ __ \
+ / ___ |/ / / / / / / / / / /_/ / /_/ / /_/ / / / /
+/_/  |_/_/ /_/_/_/ /_/ /_/\__,_/\__/_/\____/_/ /_/ 
+"""
 
 def allOff():
     for i in range(0, np.n):
@@ -168,14 +164,27 @@ def twinkling_stars():
             star = stars[i]
             star['b'] *= star['v']
             if star['b'] > 10:
-                b = int( star['b'])
-                np[star['p']] = ( 0,0,b)
+                bright = int( star['b'])
+                r = bright
+                g = int(bright * 0.57)
+                b = 0
+                np[star['p']] = ( r, g, b)
             else:
                 np[star['p']] = (0,0,0)
                 star = new_twinkling_star(star)
 
         np.write()
         time.sleep_ms(30)
+
+def sleeping():
+    for b in range(0,100):
+        np[0] = (0, 0, b)
+        np.write()
+        
+    for b in range(100, 0, -1):
+        np[0] = (0, 0, b)
+        np.write()
+        time.sleep_ms(20)
 
 """
             _                      _          _     _ _   
@@ -185,11 +194,13 @@ def twinkling_stars():
 |_| |_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |___/_| |_|_|\__|
 """                                                          
 
-version = '0.13.0'
+version = '0.17.0'
 client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 topic='leds/' + client_id
 host='192.168.1.132'
 client=MQTTClient(topic, host)
+
+state = sleeping
 
 def frangable_publish(topic, payload):
     try:
@@ -212,27 +223,52 @@ while not s.isconnected():
     publish("Network not connected - sleeping")
     time.sleep(1)
 
-print("First client connect", client.connect())
+def set_state(new_state):
+    global state
+    
+    if new_state == "sleep":
+        state = sleeping
+    if new_state == "twinkling_stars":
+        state = twinkling_stars
+    
+    f = open('state.txt', 'w')
+    f.write(new_state)
+    f.close()
+    print("wrote state: " + new_state)
+
+def get_state():
+
+    new_state="sleep"
+
+    if 'state.txt' in os.listdir():
+        f = open('state.txt')
+        new_state = f.read()
+        f.close()
+    set_state(new_state)
+    return(new_state)
 
 def gotMessage(topic, msg):
     print("Got message")
+    global state
     s_msg = msg.decode("utf-8")
     publish("got msg: " + s_msg)
     if s_msg == "b":
         publish("reset")
         allOff()
-        time.sleep(5)
+        time.sleep(2)
         machine.reset()
-
+    else:
+        set_state(s_msg)
 
 client.connect()
-
 client.set_callback(gotMessage)
 listen_topic = "/strip/command/" + client_id
 client.subscribe(listen_topic)
 print("Listening to ", listen_topic)
 
-publish("hello")
+cur_state = get_state()
+
+publish("hello: " + cur_state)
 
 """
   _       __    _   _          _     ___   ___   ___  
@@ -246,6 +282,7 @@ while keep_running():
     # binary_index_blink()
     # falling_stars()
     # party()
-    twinkling_stars()
+    # twinkling_stars()
+    state()
 
 
