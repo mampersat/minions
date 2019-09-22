@@ -19,6 +19,7 @@ fleet['esp8266_609a1100'] = "breadboard"
 fleet['esp8266_7f35d500'] = "tester"
 fleet['esp8266_c1584a00'] = "3x5"
 fleet['esp8266_22584a00'] = "Test Block"
+fleet['esp8266_a84b4a00'] = "Master East"
 
 
 
@@ -93,9 +94,9 @@ def display():
         d = (now - t)
         s = d.total_seconds()
         color = ''
-        if (s < 30):
+        if (s < 300):
             color = bcolors.OKGREEN
-        elif (s < 120):
+        elif (s < 3000):
             color = bcolors.WARNING
         else:
             color = bcolors.FAIL

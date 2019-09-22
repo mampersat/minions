@@ -18,6 +18,9 @@ mode = "ho"
 
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
+np[0] = (0,10,0)
+np.write()
+
 # fall
 pallet = [
     (100, 0, 0),      # red
@@ -27,18 +30,24 @@ pallet = [
 ]
 
 
-def random(i):
-    if i:
+def random(i=1):
+    if (i != 1):
         return int(uos.urandom(1)[0]/256 * i)
     else:
         return uos.urandom(1)[0]/256
 
 
 def keep_running():
-    if utime.ticks_ms() < 50000:  # about 30s
+    client.check_msg()
+    if utime.ticks_ms() < 100000:  # about 1m
+    # if utime.ticks_ms() < 500000:  # about 300s
+        #print("listening")
+        #print("check = ", client.check_msg() )
         return True
     else:
-        publish("resetting")
+        publish("reset")
+        np[0] = (10,0,0)
+        np.write()
         time.sleep(1)
         machine.reset()
 
@@ -87,7 +96,7 @@ def new_star(star={}):
 
 def falling_stars():
     stars = []
-    for i in range(0, 5):
+    for i in range(0, 3):
         star = {}
         stars.append(new_star(star))
 
@@ -125,7 +134,48 @@ def falling_stars():
                 star = new_star(star)
 
         np.write()
-        # time.sleep(0.1)
+        time.sleep(0.5)
+
+def party():
+    for i in range(0, np.n):
+        if (random(5)== 1):
+            np[i] = (
+                random(12),
+                random(12),
+                random(12)
+            )
+        else:
+            np[i] = (0, 0, 0)
+    np.write()
+
+def new_twinkling_star(star={}):
+    star['p'] = random(np.n)
+    star['b'] = 50
+    star['v'] = 0.9 + random() * 0.09
+    return(star)
+
+def twinkling_stars():
+    
+    stars=[]
+    
+    for i in range(0,3):
+        star = {}
+        star = new_twinkling_star(star)
+        stars.append(star)
+    
+    while keep_running():
+        for i in range(0, len(stars)):
+            star = stars[i]
+            star['b'] *= star['v']
+            if star['b'] > 10:
+                b = int( star['b'])
+                np[star['p']] = ( 0,0,b)
+            else:
+                np[star['p']] = (0,0,0)
+                star = new_twinkling_star(star)
+
+        np.write()
+        time.sleep_ms(30)
 
 """
             _                      _          _     _ _   
@@ -135,7 +185,7 @@ def falling_stars():
 |_| |_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |___/_| |_|_|\__|
 """                                                          
 
-version = '0.9.3'
+version = '0.13.0'
 client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 topic='leds/' + client_id
 host='192.168.1.132'
@@ -162,18 +212,25 @@ while not s.isconnected():
     publish("Network not connected - sleeping")
     time.sleep(1)
 
-client.connect()
+print("First client connect", client.connect())
 
 def gotMessage(topic, msg):
+    print("Got message")
     s_msg = msg.decode("utf-8")
     publish("got msg: " + s_msg)
     if s_msg == "b":
-        publish("resetting")
+        publish("reset")
         allOff()
+        time.sleep(5)
         machine.reset()
 
+
+client.connect()
+
 client.set_callback(gotMessage)
-client.subscribe("/strip/command/" + client_id)
+listen_topic = "/strip/command/" + client_id
+client.subscribe(listen_topic)
+print("Listening to ", listen_topic)
 
 publish("hello")
 
@@ -182,10 +239,13 @@ publish("hello")
  | |\/|  / /\  | | | |\ |     | |   / / \ / / \ | |_) 
  |_|  | /_/--\ |_| |_| \|     |_|__ \_\_/ \_\_/ |_|   
 """
-                                                     
+
 allOff()
 
 while keep_running():
     # binary_index_blink()
-    falling_stars()
+    # falling_stars()
+    # party()
+    twinkling_stars()
+
 
