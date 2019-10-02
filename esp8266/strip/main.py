@@ -2,6 +2,7 @@ import machine
 import math
 import neopixel
 import network
+import ntptime
 import os
 import time
 import ubinascii
@@ -40,6 +41,7 @@ def random(i=1):
 def keep_running():
     client.check_msg()
     if utime.ticks_ms() < 100000:  # about 1m
+    # if utime.ticks_ms() < 1000000:  # about 10m - for time calibration
         return True
     else:
         publish("reset")
@@ -136,9 +138,9 @@ def party():
     for i in range(0, np.n):
         if (random(5)== 1):
             np[i] = (
-                random(12),
-                random(12),
-                random(12)
+                random(210),
+                random(210),
+                random(210)
             )
         else:
             np[i] = (0, 0, 0)
@@ -146,7 +148,7 @@ def party():
 
 def new_twinkling_star(star={}):
     star['p'] = random(np.n)
-    star['b'] = 50
+    star['b'] = 200
     star['v'] = 0.9 + random() * 0.09
     return(star)
 
@@ -154,7 +156,7 @@ def twinkling_stars():
     
     stars=[]
     
-    for i in range(0,3):
+    for i in range(0,10):
         star = {}
         star = new_twinkling_star(star)
         stars.append(star)
@@ -176,15 +178,37 @@ def twinkling_stars():
         np.write()
         time.sleep_ms(30)
 
+def blue():
+    for i in range(0, np.n):
+        np[i] = (0, 0, int (math.cos(utime.ticks_ms() / 500) * 127 + 127))
+    np.write()
+
+
 def sleeping():
-    for b in range(0,100):
-        np[0] = (0, 0, b)
-        np.write()
-        
-    for b in range(100, 0, -1):
-        np[0] = (0, 0, b)
-        np.write()
-        time.sleep_ms(20)
+
+    # np[0] = (0, 0, int(utime.ticks_ms() / 10 % 255)
+    i = int(utime.ticks_ms() / 10 % 10)
+
+    np[0] = (0, 0, int (math.cos(utime.ticks_ms() / 300) * 127 + 127))
+
+    np.write()
+
+def time_calibration():
+    i = int(time.time() % 10)
+    np[i] = (0,100,0)
+    np[(i-1) %10] = (0, 0, 0)
+    np.write()
+    # publish(str(time.time()))
+    time.sleep_ms(250)
+
+def orange():
+    for i in range(0, np.n):
+        np[i] = (
+            int (math.cos(utime.ticks_ms() / 500) * 127 + 127),
+            int (math.cos(utime.ticks_ms() / 500) * 127 + 127),
+            0)
+    np.write()
+
 
 """
             _                      _          _     _ _   
@@ -194,13 +218,13 @@ def sleeping():
 |_| |_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |___/_| |_|_|\__|
 """                                                          
 
-version = '0.17.0'
+version = '1.7.0'
 client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 topic='leds/' + client_id
 host='192.168.1.132'
 client=MQTTClient(topic, host)
 
-state = sleeping
+state = time_calibration
 
 def frangable_publish(topic, payload):
     try:
@@ -230,6 +254,14 @@ def set_state(new_state):
         state = sleeping
     if new_state == "twinkling_stars":
         state = twinkling_stars
+    if new_state == "party":
+        state = party
+    if new_state == "blue":
+        state = blue
+    if new_state == "time_calibration":
+        state = time_calibration
+    if new_state == "orange":
+        state = orange
     
     f = open('state.txt', 'w')
     f.write(new_state)
@@ -238,6 +270,7 @@ def set_state(new_state):
 
 def get_state():
 
+    # Default to alseep, no dreams allowed
     new_state="sleep"
 
     if 'state.txt' in os.listdir():
@@ -245,6 +278,7 @@ def get_state():
         new_state = f.read()
         f.close()
     set_state(new_state)
+    
     return(new_state)
 
 def gotMessage(topic, msg):
@@ -259,6 +293,9 @@ def gotMessage(topic, msg):
         machine.reset()
     else:
         set_state(s_msg)
+
+
+# ntptime.settime()
 
 client.connect()
 client.set_callback(gotMessage)

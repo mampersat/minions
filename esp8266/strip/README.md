@@ -39,5 +39,108 @@ import webrepl_setup
 
 Push new code over USB connection
 ```
+ampy put main.py; sudo picocom /dev/ttyUSB0 -b115200
 ampy -p /dev/ttyUSB0 -b 115200 put main.py; sudo picocom /dev/ttyUSB0 -b115200
 ```
+## journal
+### 2019-09-17
+Blue smoke. Fuck.
+
+### 2019-09-24
+Last night sucked... today started with yet another new problem. Every component in this stack is failing - hardware and software
+
+Masterbedroom west strip won't light... tested circut J on coiled strip and it works
+This strip was working last night and I didn't make physical changes last night so I dunno how I could have damaged it
+
+Suspect the desoldering attempts messed up the voltage adjuster... new chop looks good... 
+
+9:09pm
+Hooking up window unit... must've swapped pox/neg on power in... melted wire...
+
+Resoldered wire on unit E
+3 windows party time. VICTORY
+
+### 2019-09-25
+Devices all returning "Sleep" status
+Sent "Party" command, but once again master east is slow to resond
+
+Inventory is becoming problematic - swapped the master east to diagnose possible wifi problems and missed getting it's esp_id into send.sh
+
+Goal: Rewrite `sleep` to operate on clock and check for msg more often... but not TOO often
+
+### 2019-09-26
+Worked from home all day and it was hard not to THINK about the inventory problem
+Once 5pm rolled around I wasn't motivated to solve it
+
+### 2019-09-27
+Inventory = Just put it in the make file comments... <10 devices shouldn't be that hard to track
+Had wrong IP for device H and really didn't want to cut it from the window and check it
+Thought about using mac laptop to get it, but USBC -> FUCK doesn't work
+Looked up IP's in the router, and was able to map the mac address ESP_4A52D7 to the device ID esp8266_d7524a00
+
+Devices G and K didn't have the 3v->5v jumper wire. Bad quality solder M@
+
+Installed Nick's windows... working pretty well
+
+Got block setup more safe... declaring it location 0
+
+Version 1.0.0 launched
+```
+Time: 2019-09-27 21:10:31.898417
+desk window     0.22.0:reset    just now
+esp8266_88524a00        0.22.0:hello: sleep     a minute ago
+Master West     0.22.0:hello: sleep     just now
+breadboard      1.0.0:hello: sleep      17 seconds ago
+Master East     0.22.0:hello: sleep     18 seconds ago
+Master East not 0.22.0:hello: sleep     a minute ago
+```
+### 2019-09-28
+Starting time_calibration stuff
+Units 1 and 5 needed reset
+Reset all - now unit 4 is not behaving - showing party pixels vs. time calibration
+
+Unit 1 software not updating... might have wrong IP for it - maybe not... Nope - it's right. Published to it and confirmed. Turn around on pub/msg is a pain
+
+Time calibration sends lots of messages... maybe overloading MQTT bus?
+
+4 & 5 being little bitches now... not reporting...
+
+Can publish to 4... but it's not sending MQTT
+
+Added `sleep 1` between repyl pub of main.py and config.py - did it before, removed it, just put it back... publish worked 100%
+
+Status
+0: Champ
+1: Reporting OK, but no lights... probably loose connector
+2: Champ
+4: first light seems to be blinking with time_calibration... others in party mode
+5: can publish... but sketchy replies
+6: Champ
+
+### 2019-09-29
+
+Stats
+0: Champ
+1:
+2:
+4:
+
+### 2019-09-30
+Stats
+0: Champ
+1: Champ
+2: Impish
+4: Impish
+5: Champ
+6: Impish
+
+Hard reset fleet and all reporting for a bit... then sadness
+
+### 2019-10-02
+States
+0: Impish
+1: Champ
+2: Champ
+4: Champ
+5: Champ
+
