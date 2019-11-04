@@ -187,9 +187,9 @@ def blue():
 def sleeping():
 
     # np[0] = (0, 0, int(utime.ticks_ms() / 10 % 255)
-    i = int(utime.ticks_ms() / 10 % 10)
+    i = int(utime.ticks_ms() / 1000 % 10)
 
-    np[0] = (0, 0, int (math.cos(utime.ticks_ms() / 300) * 127 + 127))
+    np[0] = (0, 0, i)
 
     np.write()
 
@@ -202,10 +202,11 @@ def time_calibration():
     time.sleep_ms(250)
 
 def orange():
-    for i in range(0, np.n):
+    for i in range(0, np.n, 5):
+        t = utime.ticks_ms() / 500 + (i/3.14)
         np[i] = (
-            int (math.cos(utime.ticks_ms() / 500) * 127 + 127),
-            int (math.cos(utime.ticks_ms() / 500) * 127 + 127),
+            int (math.cos(t) * 127),
+            int (math.cos(t) * 127),
             0)
     np.write()
 
@@ -218,7 +219,7 @@ def orange():
 |_| |_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |___/_| |_|_|\__|
 """                                                          
 
-version = '1.7.0'
+version = '1.10.0'
 client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 topic='leds/' + client_id
 host='192.168.1.132'

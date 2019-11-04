@@ -144,3 +144,51 @@ States
 4: Champ
 5: Champ
 
+9:25pm All working
+Encountered problem with device 4 where only one pixel was responding.
+Disconnected neopixels from device and back again and it started working
+
+Device 5 might have crashed... webrepl connection worked to machine.reset()
+
+And just when it looks like everythings working... the MUTHER FUCKING USB SHIT PROBLEM AGAIN
+(This is all coupled with Nick having Occulus USB3.0 problems on his machine... FML)
+
+### 2019-10-03
+USB still fucked
+
+Devices 1 and 4 reporting but no lights - a new kind of hell
+Device 0 (USB powered) not booting
+
+USB non 3.0 ports working OK... plugged into USB hub and can work on things now
+
+Units 1 and 4 are reporting, but no lights. Maybe start rotating devices... or power supplies?
+
+### 1029-10-05
+Messing around with home assistant on the pi running MQTT broker and it seems to have broken everything
+The MQTT broker went down and maybe crashed everyone? Should probably test that.
+
+Rebooted device 0
+
+Currently 
+0: Champ
+1: impish
+2: impish
+4: impish
+5: impish (but solid red for some reason)
+6: impish
+
+USB got fucked... turned the port off/on on the hub and it recovered... nope it's fucked
+Another new behaviour = the USB port shows up but I can't connect
+```bash
+$ ls /dev/ttyU*
+/dev/ttyUSB0
+
+$ picocom /dev/ttyUSB0 -b115200
+picocom v2.2
+...
+FATAL: cannot open /dev/ttyUSB0: Input/output error
+```
+
+
+
+
