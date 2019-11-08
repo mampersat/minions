@@ -163,7 +163,7 @@ USB non 3.0 ports working OK... plugged into USB hub and can work on things now
 
 Units 1 and 4 are reporting, but no lights. Maybe start rotating devices... or power supplies?
 
-### 1029-10-05
+### 2019-10-05
 Messing around with home assistant on the pi running MQTT broker and it seems to have broken everything
 The MQTT broker went down and maybe crashed everyone? Should probably test that.
 
@@ -188,6 +188,34 @@ picocom v2.2
 ...
 FATAL: cannot open /dev/ttyUSB0: Input/output error
 ```
+Tried a different cable - things work. Sigh.
+
+### 2019-11-06
+Took some time off from the project.
+Found a couple articles detailing problems with MQTT and sketch wifi. Fits with the problems I'm having with the more remote devices.
+
+Spun up a new version of main.py with NO mqtt and launched it in the morning.
+Morning -> thru evening:
+0: champ
+1: dead
+2: champ
+3: dead
+4: looks like it started disco and froze
+6: champ
+
+### 2019-11-07
+Most devices IP addresses seem to have changed
+Had to reflash 5: device K
+
+Using python http.server (simply http) to control
+And - it hangs... not too kewl
+
+8:38pm - things working very well
+Running webserver on desktop and devices expect it to be there
+```bash
+matt@mattdesktop:~/git/minions/esp8266/strip/server$ python3 -m http.server
+```
+
 
 
 
