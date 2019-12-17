@@ -216,6 +216,22 @@ Running webserver on desktop and devices expect it to be there
 matt@mattdesktop:~/git/minions/esp8266/strip/server$ python3 -m http.server
 ```
 
+### 2019-11-10
+The server is now the week point. Running simple http.server from python works for 3-4 hrs but then hangs
+
+Considering flask + apache + nginx + running it on the PI
+
+### 2019-11-12
+Got flask webserver running - pretty good
+
+Device 2 and 0 are being impish - suspect IP changes
+
+### 2019-11-16
+HTML in full swing, new repo for flask based C&C service 
+Had problem last night getting things to sleep - frustrating
+Still some hanging problems when the C&C service goes offline... was running on desktop which would sleep. Dockerized and moved to pi - which makes it difficult to update that code. Need to get better at deploying dockerized services
+
+
 
 
 

@@ -190,7 +190,38 @@ def orange():
             0)
     np.write()
 
+def xmas():
+    chunked_t = int(utime.ticks_ms() /1000)
+    for i in range(1, 25):
+        on = chunked_t * 29 * i
+        off = (chunked_t-1) * 29 * i
+        np[ on % np.n] = (100, 0 , 0)
+        np[ off % np.n] = (0,0,0)
 
+    for i in range(26, 31):
+        on = chunked_t * 29 * i
+        off = (chunked_t-1) * 29 * i
+        np[ on % np.n] = (100, 100 , 100)
+        np[ off % np.n] = (0,0,0)
+
+
+    np.write()
+
+def red_white():
+
+    t = int(utime.ticks_ms() /1000)
+    
+    for i in range(0, np.n):
+
+        thick = 6
+
+        if ( (i +t) % thick <thick /2 ):
+            np[i] = (100, 0, 0)
+        else:
+            np[i] = (0, 100, 0)
+
+    np.write()
+    
 """
             _                      _          _     _ _   
  _ __   ___| |___      _____  _ __| | __  ___| |__ (_) |_ 
@@ -199,11 +230,11 @@ def orange():
 |_| |_|\___|\__| \_/\_/ \___/|_|  |_|\_\ |___/_| |_|_|\__|
 """                                                          
 
-version = 6
+version = 10
 client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 
-command = "orange"
-state = orange
+command = "red_white"
+state = red_white
 
 def set_state():
     global state
@@ -213,6 +244,10 @@ def set_state():
         state = party
     if command == "sleep":
         state = sleeping
+    if command == "blue":
+        state = blue
+    if command == "xmas":
+        state = xmas
 
 
 def get_command():
@@ -225,12 +260,12 @@ def get_command():
     if s.isconnected():
         print("Connected - getting command")
         try:
-            server_command = urequests.get('http://192.168.1.129:8000/command.html').text
+            server_command = urequests.get('http://192.168.1.132:8000/command.html').text
             if (server_command != command):
                 command = server_command
                 allOff()
             print("Got command ", command)
-            server_version = urequests.get('http://192.168.1.129:8000/version.html').text
+            server_version = urequests.get('http://192.168.1.132:8000/version.html').text
             print("Got version ", server_version)
             if int(server_version) > version:
                 machine.reset()
@@ -261,7 +296,7 @@ def keep_running():
 
 allOff()
 
-while keep_running():
+# while keep_running():
+
+while True:
     state()
-
-
