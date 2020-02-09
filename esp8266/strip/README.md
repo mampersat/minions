@@ -231,7 +231,41 @@ HTML in full swing, new repo for flask based C&C service
 Had problem last night getting things to sleep - frustrating
 Still some hanging problems when the C&C service goes offline... was running on desktop which would sleep. Dockerized and moved to pi - which makes it difficult to update that code. Need to get better at deploying dockerized services
 
+### 2019-11-23
+Things mostly still suck... got the flask based web backend working, whish makes it clear how much it suckes
+192.168.1.139: Impish - always blue, annoying and have to unplug at night
+192.168.1.116: Impish - Suzy's laundry stuff keeps breaking this
+192.168.1.190: Impish
+192.168.1.210: Makes requests every 10min or so, can't connect though
+192.168.1.119: Champ - but requires USB connection etc
 
+Concered IP addresses might be changing during downtime...
+See requests from 192.168.1.144 - can webrepl but can't cause it to disconnect
+
+Guess I gotta start surveying the entire fleet and tracking problems...
+#1: Master Left
+Was flashing blue - couldn't do anything but unplug
+Discovered it had a different IP address, was 192.168.139, but DHCP gave it 192.168.1.144
+Linksys DHCP did NOT have .139 reserved... so I reserved 144
+Added to Makefile
+Updating flask app requires downtime (not gonna do CI/CD here)
+Investigating how working devices (144/119) respond. What state they end up in
+
+# 2019-12-09
+Still a bunch of SUCK - it was 100% working on friday night, now I'm giving up on control and just want a single pattern everywhere
+
+Cut G and D out for desk testing
+
+Both power supply ground wires are melted
+
+# 2019-12-10
+Theory = wrong guage wires from power supply
+Wired power supply directly to D, put back in 4 spot
+
+# 2019-12-14
+Rewired
+Power strip soldered directly to ESP8266 in all 4
+Wired Strips to DuPont connectors on 2
 
 
 

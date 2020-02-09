@@ -2,6 +2,7 @@ import machine
 import math
 import neopixel
 import network
+import os
 import time
 import ubinascii
 import uos  # random numbers
@@ -72,48 +73,6 @@ def new_star(star={}):
 
     return star
 
-def falling_stars():
-    stars = []
-    for i in range(0, 3):
-        star = {}
-        stars.append(new_star(star))
-
-    while keep_running():
-
-        # turn all off, but don't write yet
-        for i in range(0, np.n):
-            np[i] = (0, 0, 0)
-
-        for star in stars:
-            strip = star['strip']
-            first = int(star['pos'])
-            second = first +1
-            first_percent = star['pos'] -first
-            second_percent = 1 - first_percent
-
-            pixel = strip[first]
-            np[pixel] = (
-                int( star['color'][0] * first_percent),
-                int( star['color'][1] * first_percent),
-                int( star['color'][2] * first_percent),
-            )
-            
-            if (second < len(strip)) :
-                pixel = strip[second]
-                np[pixel] = (
-                    int( star['color'][0] * second_percent),
-                    int( star['color'][1] * second_percent),
-                    int( star['color'][2] * second_percent),
-                )
-            star["pos"] += star["speed"]
-
-            pos = int(star['pos'])
-            if (pos >= len(strip)):
-                star = new_star(star)
-
-        np.write()
-        time.sleep(0.5)
-
 def party():
     for i in range(0, np.n):
         if (random(5)== 1):
@@ -165,6 +124,8 @@ def blue():
 
 
 def sleeping():
+
+    allOff()
 
     # np[0] = (0, 0, int(utime.ticks_ms() / 10 % 255)
     i = int(utime.ticks_ms() / 1000 % 10)
@@ -221,6 +182,25 @@ def red_white():
             np[i] = (0, 100, 0)
 
     np.write()
+
+def snakes():
+    t = int(utime.ticks_ms() /20)
+
+    # snake =  = (r, g, b, len, speed)
+    snakes = [
+        (255, 0, 0, 0.5, 5),
+        (0, 255, 0, 0.2, 8),
+    ]
+
+    for s in snakes:
+        head = int(t * s[3]) % np.n
+        tail = (head - s[4]) % np.n
+        np[head] = ( s[0], s[1], s[2])
+        np[tail] = ( 0, 0, 0)
+    
+    np.write()
+        
+
     
 """
             _                      _          _     _ _   
@@ -236,7 +216,8 @@ client_id='esp8266_'+str(ubinascii.hexlify(machine.unique_id()), 'utf-8')
 command = "red_white"
 state = red_white
 
-def set_state():
+def set_state(command):
+    print("State = x", command, "x")
     global state
     if command == "orange":
         state = orange
@@ -248,32 +229,23 @@ def set_state():
         state = blue
     if command == "xmas":
         state = xmas
+    if command == "red_white":
+        state = red_white
+    if command == "snakes":
+        state = snakes
 
 
 def get_command():
-    global command
-    global version
-    
-    print("Checking")
 
-    s = network.WLAN(network.STA_IF)
-    if s.isconnected():
-        print("Connected - getting command")
-        try:
-            server_command = urequests.get('http://192.168.1.132:8000/command.html').text
-            if (server_command != command):
-                command = server_command
-                allOff()
-            print("Got command ", command)
-            server_version = urequests.get('http://192.168.1.132:8000/version.html').text
-            print("Got version ", server_version)
-            if int(server_version) > version:
-                machine.reset()
-        except:
-            print("Error getting command from server, defaulting to ", command)
-        set_state()
-    else:
-        print("Not connected")
+    if 'reset.txt' in os.listdir():
+        time.sleep(5)
+        os.remove('reset.txt')
+        machine.reset()
+
+    file = open('state.txt')
+    command = file.read().strip()
+    file.close()
+    set_state(command)
 
 """
   _       __    _   _          _     ___   ___   ___  
@@ -288,7 +260,8 @@ def keep_running():
     global last_check_ms
 
     if utime.ticks_ms() > last_check_ms:
-        last_check_ms = utime.ticks_ms() + 10000
+        last_check_ms = utime.ticks_ms() + 1000
+
         get_command()
     
     return True
@@ -298,5 +271,5 @@ allOff()
 
 # while keep_running():
 
-while True:
+while keep_running():
     state()

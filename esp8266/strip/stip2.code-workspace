@@ -1,19 +1,19 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": "/home/matt/git/ratewings"
 		},
 		{
 			"path": "/home/matt/git/todo"
 		},
 		{
-			"path": "/home/matt/git/flask"
+			"path": "/home/matt/git/phish"
 		},
 		{
-			"path": "/home/matt/git/ratewings"
+			"path": "/home/matt/git/angular/workout"
 		},
 		{
-			"path": "/home/matt/.stellarium"
+			"path": "/home/matt/git/minions/esp8266"
 		}
 	],
 	"settings": {}
