@@ -1,42 +1,38 @@
+""" monitor_main.py
+Blink ternary counting pattern on neopixels
+Designed for a strip of neopixels on the back of a monitor
+0 = red
+1 = green
+2 = blue
+"""
 import machine
 import math
 import neopixel
-import network
-import os
-import time
-import ubinascii
-import uos  # random numbers
 import utime
-import urequests
 
 pin = 14
-lights = 50
+lights = 48
 level = 10
 
 np = neopixel.NeoPixel(machine.Pin(pin), lights)
 
-np[0] = (0,10,0)
-np.write()
-
-def random(i=1):
-    if (i != 1):
-        return int(uos.urandom(1)[0]/256 * i)
-    else:
-        return uos.urandom(1)[0]/256
-
 while True:
-    t = int( utime.ticks_ms() / 1000 )
-    for i in range(0,50):
 
+    # seconds since the device was powered on
+    # devided to increment every 1/4 of a second
+    t = int( utime.ticks_ms() / 250 )
+
+    for i in range(0, lights):
+
+        # Repeat the pattern every 10 neopixels
         i_prime = i % 10
 
+        # Calculate the value of the i_prime digit
         v = int( t / pow (3, i_prime)) % 3
 
-        r = (v == 0) * 10
-        g = (v == 1) * 10
-        b = (v == 2) * 10
-
-        print(r, g, b)
+        r = (v == 0) * level
+        g = (v == 1) * level
+        b = (v == 2) * level
 
         np[i] = ( r, g, b)
 
